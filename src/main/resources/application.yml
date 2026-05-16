@@ -79,8 +79,8 @@ spring:
   mail:
     host: ${MAIL_HOST:sandbox.smtp.mailtrap.io}
     port: ${MAIL_PORT:2525}
-    username: ${MAIL_USERNAME:005386051c13e3}
-    password: ${MAIL_PASSWORD:e79fbe1d4ab3d8}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
@@ -132,7 +132,7 @@ server:
 logging:
   level:
     root: INFO
-    org.example.authenticationauthorization: DEBUG
+    org.example.shopflow: DEBUG
     org.springframework.security: INFO
     org.hibernate.SQL: WARN
 
