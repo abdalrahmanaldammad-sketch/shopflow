@@ -1,0 +1,138 @@
+spring:
+  application:
+    name: shopflow
+
+  # ==========================================
+  # Database Configuration
+  # ==========================================
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:6000}/authdb
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:1234}
+    hikari:
+      # Req 2 — Resource Management: controls DB connection concurrency.
+      # max = how many threads can query the DB simultaneously.
+      # Too high → DB overload. Too low → request queue builds up.
+      pool-name: HikariPool-AuthDB
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 30000       # 30s — fail fast instead of hanging forever
+      max-lifetime: 1800000           # 30min — recycle connections before DB closes them
+      leak-detection-threshold: 60000 # warn if a connection is held > 60s (likely a bug)
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        JDBC:
+          time_zone: UTC
+    open-in-view: false
+
+  # ==========================================
+  # Flyway Configuration
+  # ==========================================
+  flyway:
+    enabled: false
+
+  # ==========================================
+  # OAuth2 Client Configuration
+  # ==========================================
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:placeholder}
+            client-secret: ${GOOGLE_CLIENT_SECRET:placeholder}
+            scope: email, profile
+          github:
+            client-id: ${GITHUB_CLIENT_ID:placeholder}
+            client-secret: ${GITHUB_CLIENT_SECRET:placeholder}
+            scope: user:email, read:user
+
+  # ==========================================
+  # Redis Configuration (JWT Blacklisting)
+  # ==========================================
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      # Req 2 — Resource Management: Lettuce connection pool prevents every
+      # async thread from opening its own Redis connection under high load.
+      lettuce:
+        pool:
+          max-active: 10   # max simultaneous Redis connections
+          max-idle: 5      # max idle connections kept alive
+          min-idle: 2      # always keep 2 warm connections ready
+          max-wait: 2000ms # wait up to 2s for a free connection before failing
+
+
+
+  # ==========================================
+  # Mail Configuration
+  # ==========================================
+  mail:
+    host: ${MAIL_HOST:sandbox.smtp.mailtrap.io}
+    port: ${MAIL_PORT:2525}
+    username: ${MAIL_USERNAME:005386051c13e3}
+    password: ${MAIL_PASSWORD:e79fbe1d4ab3d8}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+# ==========================================
+# Application Custom Configuration
+# ==========================================
+app:
+  jwt:
+    # IMPORTANT: In production, use a strong 64+ character secret stored in env/vault.
+    # This must be at least 64 bytes for HMAC-SHA512.
+    secret: ${JWT_SECRET:aboodisthebestintheworldwhatareyougonnadoaboodisthebestintheworldwhatareyougonnado}
+    access-token-expiration-ms: 900000       # 15 minutes
+    refresh-token-expiration-days: 7         # 7 days
+
+  oauth2:
+    redirect-uri: ${OAUTH2_REDIRECT_URI:http://localhost:3000/oauth2/callback}
+
+  mail:
+    from: ${MAIL_FROM:noreply@example.com}
+    base-url: ${APP_BASE_URL:http://localhost:8080}
+
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:3001,http://localhost:5173}
+
+  cookie:
+    secure: ${COOKIE_SECURE:false}
+    domain: ${COOKIE_DOMAIN:}
+
+# ==========================================
+# Server Configuration
+# ==========================================
+server:
+  port: 8080
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+
+# ==========================================
+# Logging Configuration
+# ==========================================
+logging:
+  level:
+    root: INFO
+    org.example.authenticationauthorization: DEBUG
+    org.springframework.security: INFO
+    org.hibernate.SQL: WARN
+

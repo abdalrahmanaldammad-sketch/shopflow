@@ -1,0 +1,95 @@
+
+
+
+services:
+
+  # ─────────────────────────────────────────────
+  # PostgreSQL
+  # ─────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: shopflow-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: authdb
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-1234}
+    ports:
+      - "6000:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d authdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - shopflow-network
+
+  # ─────────────────────────────────────────────
+  # Redis (JWT blacklisting + token store)
+  # ─────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: shopflow-redis
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - shopflow-network
+
+  # ─────────────────────────────────────────────
+  # Spring Boot Application
+  # Built via: ./mvnw jib:dockerBuild
+  # ─────────────────────────────────────────────
+  app:
+    image: shopflow:latest
+    container_name: shopflow-app
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-1234}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: ${JWT_SECRET:-aboodisthebestintheworldwhatareyougonnadoaboodisthebestintheworldwhatareyougonnado}
+      MAIL_HOST: ${MAIL_HOST:-sandbox.smtp.mailtrap.io}
+      MAIL_PORT: ${MAIL_PORT:-2525}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+    depends_on:
+      # Ordering: app only starts after postgres AND redis pass their healthchecks.
+      # Without this, the app starts while DBs are still initializing → connection refused.
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - shopflow-network
+
+# ─────────────────────────────────────────────
+# Named volumes — data survives container restarts
+# ─────────────────────────────────────────────
+volumes:
+  postgres-data:
+  redis-data:
+
+# ─────────────────────────────────────────────
+# Isolated network — containers talk by service name
+# ─────────────────────────────────────────────
+networks:
+  shopflow-network:
+    driver: bridge
