@@ -1,0 +1,560 @@
+{
+  "annotations": { "list": [] },
+  "title": "ShopFlow - HTTP Request Monitoring",
+  "uid": "shopflow-http",
+  "editable": true,
+  "panels": [
+    {
+      "id": 100,
+      "title": "--- Load Balancing Overview ---",
+      "type": "text",
+      "gridPos": { "h": 2, "w": 24, "x": 0, "y": 0 },
+      "options": { "mode": "markdown", "content": "" }
+    },
+    {
+      "id": 50,
+      "title": "Requests Handled — Instance 1",
+      "description": "Total requests handled by first app instance",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(http_server_requests_seconds_count{application=\"shopflow\", instance=~\"172.22.0.4.*\"})",
+          "legendFormat": "Instance 1"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "fixed", "fixedColor": "green" },
+          "thresholds": { "steps": [{ "color": "green", "value": null }] }
+        }
+      },
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 2 }
+    },
+    {
+      "id": 51,
+      "title": "Requests Handled — Instance 2",
+      "description": "Total requests handled by second app instance",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(http_server_requests_seconds_count{application=\"shopflow\", instance=~\"172.22.0.5.*\"})",
+          "legendFormat": "Instance 2"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "fixed", "fixedColor": "blue" },
+          "thresholds": { "steps": [{ "color": "blue", "value": null }] }
+        }
+      },
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 2 }
+    },
+    {
+      "id": 52,
+      "title": "Requests — Per Instance",
+      "description": "Total requests per instance (all instances auto-discovered)",
+      "type": "bargauge",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(http_server_requests_seconds_count{application=\"shopflow\"}) by (instance)",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 500 }, { "color": "red", "value": 1000 }] }
+        }
+      },
+      "options": { "orientation": "horizontal", "displayMode": "gradient" },
+      "gridPos": { "h": 5, "w": 12, "x": 12, "y": 2 }
+    },
+    {
+      "id": 60,
+      "title": "Request Details — Per Endpoint (Table)",
+      "description": "Human-readable table: endpoint path, HTTP method, average duration, total requests per instance",
+      "type": "table",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(http_server_requests_seconds_count{application=\"shopflow\", uri!=\"UNKNOWN\"}) by (method, uri)",
+          "legendFormat": "",
+          "instant": true,
+          "format": "table",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(http_server_requests_seconds_sum{application=\"shopflow\", uri!=\"UNKNOWN\"}) by (method, uri) / sum(http_server_requests_seconds_count{application=\"shopflow\", uri!=\"UNKNOWN\"}) by (method, uri)",
+          "legendFormat": "",
+          "instant": true,
+          "format": "table",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(http_server_requests_seconds_max{application=\"shopflow\", uri!=\"UNKNOWN\"}) by (method, uri)",
+          "legendFormat": "",
+          "instant": true,
+          "format": "table",
+          "refId": "C"
+        },
+        {
+          "expr": "sum(http_server_requests_seconds_count{application=\"shopflow\", uri!=\"UNKNOWN\"}) by (method, uri, instance)",
+          "legendFormat": "",
+          "instant": true,
+          "format": "table",
+          "refId": "D"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": { "Time": true },
+            "renameByName": {
+              "method": "Method",
+              "uri": "Path",
+              "Value #A": "Total Requests",
+              "Value #B": "Avg Duration (s)",
+              "Value #C": "Max Duration (s)",
+              "Value #D": "Requests (by instance)",
+              "instance": "Instance"
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Avg Duration (s)" },
+            "properties": [{ "id": "decimals", "value": 4 }, { "id": "unit", "value": "s" }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Max Duration (s)" },
+            "properties": [{ "id": "decimals", "value": 4 }, { "id": "unit", "value": "s" }]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 7 }
+    },
+    {
+      "id": 100,
+      "title": "--- HTTP Request Charts ---",
+      "type": "text",
+      "gridPos": { "h": 2, "w": 24, "x": 0, "y": 15 },
+      "options": { "mode": "markdown", "content": "" }
+    },
+    {
+      "id": 1,
+      "title": "Average Request Duration (by URI)",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "rate(http_server_requests_seconds_sum{application=\"shopflow\", status=\"200\"}[1m]) / rate(http_server_requests_seconds_count{application=\"shopflow\", status=\"200\"}[1m])",
+          "legendFormat": "{{method}} {{uri}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": { "drawStyle": "line", "fillOpacity": 10, "pointSize": 5, "showPoints": "auto" }
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 17 }
+    },
+    {
+      "id": 3,
+      "title": "Request Rate (req/s by instance)",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{application=\"shopflow\"}[1m])) by (instance)",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": { "drawStyle": "line", "fillOpacity": 15 }
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 17 }
+    },
+    {
+      "id": 4,
+      "title": "HTTP Response Status Codes",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{application=\"shopflow\"}[1m])) by (status)",
+          "legendFormat": "HTTP {{status}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": { "drawStyle": "bars", "fillOpacity": 50 }
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 25 }
+    },
+    {
+      "id": 5,
+      "title": "Total Requests (by URI)",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(http_server_requests_seconds_count{application=\"shopflow\", status=\"200\"}) by (uri)",
+          "legendFormat": "{{uri}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" } },
+      "gridPos": { "h": 5, "w": 12, "x": 12, "y": 25 }
+    },
+    {
+      "id": 200,
+      "title": "--- Thread Pools (Live Numbers) ---",
+      "type": "text",
+      "gridPos": { "h": 2, "w": 24, "x": 0, "y": 30 },
+      "options": { "mode": "markdown", "content": "" }
+    },
+    {
+      "id": 70,
+      "title": "Live Threads",
+      "description": "Total active JVM threads right now",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(jvm_threads_live_threads{application=\"shopflow\"}) by (instance)",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "fixed", "fixedColor": "green" },
+          "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 50 }, { "color": "red", "value": 100 }] }
+        }
+      },
+      "gridPos": { "h": 5, "w": 4, "x": 0, "y": 32 }
+    },
+    {
+      "id": 71,
+      "title": "Daemon Threads",
+      "description": "Background threads (GC, schedulers, etc)",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(jvm_threads_daemon_threads{application=\"shopflow\"}) by (instance)",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "fixed", "fixedColor": "purple" }
+        }
+      },
+      "gridPos": { "h": 5, "w": 4, "x": 4, "y": 32 }
+    },
+    {
+      "id": 72,
+      "title": "Peak Threads",
+      "description": "Highest thread count seen since JVM started",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(jvm_threads_peak_threads{application=\"shopflow\"}) by (instance)",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "fixed", "fixedColor": "orange" }
+        }
+      },
+      "gridPos": { "h": 5, "w": 4, "x": 8, "y": 32 }
+    },
+    {
+      "id": 73,
+      "title": "RUNNABLE",
+      "description": "Threads actively executing code right now",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(jvm_threads_states_threads{application=\"shopflow\", state=\"runnable\"}) by (instance)",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "fixed", "fixedColor": "green" }
+        }
+      },
+      "gridPos": { "h": 5, "w": 3, "x": 12, "y": 32 }
+    },
+    {
+      "id": 74,
+      "title": "WAITING",
+      "description": "Threads idle, waiting to be given work",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(jvm_threads_states_threads{application=\"shopflow\", state=\"waiting\"}) by (instance)",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "fixed", "fixedColor": "yellow" }
+        }
+      },
+      "gridPos": { "h": 5, "w": 3, "x": 15, "y": 32 }
+    },
+    {
+      "id": 75,
+      "title": "TIMED_WAITING",
+      "description": "Threads sleeping or polling on a timeout",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(jvm_threads_states_threads{application=\"shopflow\", state=\"timed-waiting\"}) by (instance)",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "fixed", "fixedColor": "blue" }
+        }
+      },
+      "gridPos": { "h": 5, "w": 3, "x": 18, "y": 32 }
+    },
+    {
+      "id": 76,
+      "title": "BLOCKED",
+      "description": "Threads stuck waiting for a lock. Should be 0 normally.",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(jvm_threads_states_threads{application=\"shopflow\", state=\"blocked\"}) by (instance)",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "fixed", "fixedColor": "red" },
+          "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] }
+        }
+      },
+      "gridPos": { "h": 5, "w": 3, "x": 21, "y": 32 }
+    },
+    {
+      "id": 80,
+      "title": "Executor — Active Threads",
+      "description": "Threads currently running async tasks (Spring @Async)",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "executor_active_threads{application=\"shopflow\"}",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "fixed", "fixedColor": "green" }
+        }
+      },
+      "gridPos": { "h": 5, "w": 4, "x": 0, "y": 37 }
+    },
+    {
+      "id": 81,
+      "title": "Executor — Pool Size",
+      "description": "Current number of threads in the executor pool",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "executor_pool_size_threads{application=\"shopflow\"}",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "fixed", "fixedColor": "blue" }
+        }
+      },
+      "gridPos": { "h": 5, "w": 4, "x": 4, "y": 37 }
+    },
+    {
+      "id": 82,
+      "title": "Executor — Max Threads",
+      "description": "Maximum allowed threads in executor pool",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "executor_pool_max_threads{application=\"shopflow\"}",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "fixed", "fixedColor": "orange" }
+        }
+      },
+      "gridPos": { "h": 5, "w": 4, "x": 8, "y": 37 }
+    },
+    {
+      "id": 83,
+      "title": "Executor — Queue Remaining",
+      "description": "Free slots in the task queue. Low = backpressure.",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "executor_queue_remaining_tasks{application=\"shopflow\"}",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "fixed", "fixedColor": "green" },
+          "thresholds": { "steps": [{ "color": "red", "value": null }, { "color": "yellow", "value": 10 }, { "color": "green", "value": 100 }] }
+        }
+      },
+      "gridPos": { "h": 5, "w": 4, "x": 12, "y": 37 }
+    },
+    {
+      "id": 84,
+      "title": "Executor — Completed Tasks",
+      "description": "Total tasks completed since JVM started",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "executor_completed_tasks_total{application=\"shopflow\"}",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "fixed", "fixedColor": "purple" }
+        }
+      },
+      "gridPos": { "h": 5, "w": 4, "x": 16, "y": 37 }
+    },
+    {
+      "id": 85,
+      "title": "Executor — Queued Tasks",
+      "description": "Tasks currently waiting in the queue",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "executor_queued_tasks{application=\"shopflow\"}",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "fixed", "fixedColor": "yellow" },
+          "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 5 }, { "color": "red", "value": 20 }] }
+        }
+      },
+      "gridPos": { "h": 5, "w": 4, "x": 20, "y": 37 }
+    },
+    {
+      "id": 300,
+      "title": "--- Database Connection Pool (HikariCP) ---",
+      "type": "text",
+      "gridPos": { "h": 2, "w": 24, "x": 0, "y": 42 },
+      "options": { "mode": "markdown", "content": "" }
+    },
+    {
+      "id": 90,
+      "title": "DB — Active Connections",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "sum(hikaricp_connections_active{application=\"shopflow\"}) by (instance)", "legendFormat": "{{instance}}" }],
+      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "green" } } },
+      "gridPos": { "h": 5, "w": 4, "x": 0, "y": 44 }
+    },
+    {
+      "id": 91,
+      "title": "DB — Idle Connections",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "sum(hikaricp_connections_idle{application=\"shopflow\"}) by (instance)", "legendFormat": "{{instance}}" }],
+      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "blue" } } },
+      "gridPos": { "h": 5, "w": 4, "x": 4, "y": 44 }
+    },
+    {
+      "id": 92,
+      "title": "DB — Pending",
+      "description": "Threads waiting for a DB connection",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "sum(hikaricp_connections_pending{application=\"shopflow\"}) by (instance)", "legendFormat": "{{instance}}" }],
+      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "yellow" }, "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] } } },
+      "gridPos": { "h": 5, "w": 4, "x": 8, "y": 44 }
+    },
+    {
+      "id": 93,
+      "title": "DB — Total / Max",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "sum(hikaricp_connections{application=\"shopflow\"}) by (instance)", "legendFormat": "Total — {{instance}}" },
+        { "expr": "sum(hikaricp_connections_max{application=\"shopflow\"}) by (instance)", "legendFormat": "Max — {{instance}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "purple" } } },
+      "gridPos": { "h": 5, "w": 4, "x": 12, "y": 44 }
+    },
+    {
+      "id": 94,
+      "title": "DB — Timeouts",
+      "description": "Connection pool timeouts (should be 0)",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "hikaricp_connections_timeout_total{application=\"shopflow\"}", "legendFormat": "{{instance}}" }],
+      "fieldConfig": { "defaults": { "unit": "short", "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] } } },
+      "gridPos": { "h": 5, "w": 4, "x": 16, "y": 44 }
+    }
+  ],
+  "schemaVersion": 39,
+  "version": 3,
+  "time": { "from": "now-1h", "to": "now" },
+  "refresh": "10s"
+}

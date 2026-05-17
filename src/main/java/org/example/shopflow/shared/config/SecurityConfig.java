@@ -82,6 +82,7 @@ public class SecurityConfig {
                                 "/api/auth/mfa/recovery"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
+                        .requestMatchers("/actuator/prometheus", "/actuator/health").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/flash-sales/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
