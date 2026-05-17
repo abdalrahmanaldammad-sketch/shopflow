@@ -47,6 +47,12 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
+        <!-- AOP (Req 5 — request logging per instance for load distribution visibility) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
         <!-- Redis (for JWT blacklisting) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

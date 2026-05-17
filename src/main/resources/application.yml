@@ -130,6 +130,9 @@ server:
 # Logging Configuration
 # ==========================================
 logging:
+  # Req 5 — Log pattern includes HOSTNAME so you can see which instance handled each request
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [${HOSTNAME:single}] %-5level [%thread] %logger{36} - %msg%n"
   level:
     root: INFO
     org.example.shopflow: DEBUG

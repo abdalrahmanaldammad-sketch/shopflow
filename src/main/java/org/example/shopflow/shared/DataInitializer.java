@@ -19,8 +19,13 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) {
         for (RoleName roleName : RoleName.values()) {
             if (roleRepository.findByName(roleName).isEmpty()) {
-                roleRepository.save(Role.builder().name(roleName).build());
-                log.info("Created role: {}", roleName);
+                try {
+                    roleRepository.save(Role.builder().name(roleName).build());
+                    log.info("Created role: {}", roleName);
+                } catch (Exception e) {
+                    // Another instance may have inserted it concurrently — safe to ignore
+                    log.debug("Role {} already exists (concurrent insert)", roleName);
+                }
             }
         }
     }

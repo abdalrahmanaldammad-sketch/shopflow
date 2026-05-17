@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopFlow - Complete Project Documentation</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --code-bg: #f1f5f9;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #06b6d4;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            padding: 2rem;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { font-size: 2.5rem; color: var(--primary-dark); margin-bottom: 0.5rem; }
+        h2 { font-size: 1.8rem; color: var(--primary); margin: 2.5rem 0 1rem; border-bottom: 3px solid var(--primary); padding-bottom: 0.5rem; }
+        h3 { font-size: 1.3rem; color: var(--text); margin: 1.5rem 0 0.8rem; }
+        h4 { font-size: 1.1rem; color: var(--text-muted); margin: 1rem 0 0.5rem; }
+        p { margin-bottom: 0.8rem; }
+        .subtitle { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 2rem; }
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 0.8rem;
+        }
+        code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9em;
+            color: #d946ef;
+        }
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1.2rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        pre code { background: none; color: inherit; padding: 0; }
+        .comment { color: #94a3b8; }
+        .keyword { color: #fb923c; }
+        .string { color: #34d399; }
+        .annotation { color: #fbbf24; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+        th, td {
+            border: 1px solid var(--border);
+            padding: 0.7rem 1rem;
+            text-align: left;
+        }
+        th { background: var(--primary); color: white; font-weight: 600; }
+        tr:nth-child(even) { background: var(--code-bg); }
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge-green { background: #dcfce7; color: #166534; }
+        .badge-blue { background: #dbeafe; color: #1e40af; }
+        .badge-orange { background: #ffedd5; color: #9a3412; }
+        .badge-red { background: #fee2e2; color: #991b1b; }
+        .badge-purple { background: #f3e8ff; color: #6b21a8; }
+        .flow-diagram {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: monospace;
+            white-space: pre;
+            overflow-x: auto;
+            line-height: 1.4;
+            margin: 1rem 0;
+        }
+        .toc {
+            background: var(--card-bg);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+        }
+        .toc h3 { color: var(--primary); margin-bottom: 1rem; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { margin: 0.4rem 0; }
+        .toc a { color: var(--primary); text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .highlight-box {
+            border-left: 4px solid var(--primary);
+            background: #eff6ff;
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .warning-box {
+            border-left: 4px solid var(--warning);
+            background: #fffbeb;
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+        .pool-viz {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin: 0.5rem 0;
+        }
+        .pool-thread {
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; font-weight: bold; color: white;
+        }
+        .thread-core { background: var(--primary); }
+        .thread-max { background: #93c5fd; border: 2px dashed var(--primary); }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <h1>ShopFlow</h1>
+    <p class="subtitle">Complete Technical Documentation - Spring Boot E-Commerce Application with Auth, Orders, Flash Sales, Async Processing & Batch Reporting</p>
+
+    <!-- TABLE OF CONTENTS -->
+    <div class="toc">
+        <h3>Table of Contents</h3>
+        <ul>
+            <li><a href="#overview">1. Project Overview & Architecture</a></li>
+            <li><a href="#database">2. Database Tables (Entity Relationship)</a></li>
+            <li><a href="#auth">3. Authentication & Security (Business Logic)</a></li>
+            <li><a href="#orders">4. Order Processing & Concurrency Control</a></li>
+            <li><a href="#flashsale">5. Flash Sales & Pessimistic Locking</a></li>
+            <li><a href="#async">6. Async Event System (Observer Pattern)</a></li>
+            <li><a href="#batch">7. Batch Processing & Reporting</a></li>
+            <li><a href="#resources">8. Resource Management (Connection Pools)</a></li>
+            <li><a href="#threads">9. Thread Pools Configuration</a></li>
+            <li><a href="#line-by-line">10. Line-by-Line Code Explanation</a></li>
+        </ul>
+    </div>
+
+    <!-- SECTION 1: OVERVIEW -->
+    <h2 id="overview">1. Project Overview & Architecture</h2>
+
+    <div class="card">
+        <div class="card-title">What is ShopFlow?</div>
+        <p>ShopFlow is a <strong>Spring Boot 3</strong> e-commerce backend that demonstrates production-grade patterns:</p>
+        <ul style="padding-left: 1.5rem; margin-top: 0.5rem;">
+            <li><strong>Req 1:</strong> Concurrency control via Optimistic & Pessimistic locking (Strategy Pattern)</li>
+            <li><strong>Req 2:</strong> Resource management via connection pools (HikariCP, Redis Lettuce, Thread Pools)</li>
+            <li><strong>Req 3:</strong> Async event queue (Observer Pattern) for non-blocking invoice generation</li>
+            <li><strong>Req 4:</strong> Batch processing for daily sales reports (chunked to avoid OOM)</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Tech Stack</div>
+        <table>
+            <tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr>
+            <tr><td>Framework</td><td>Spring Boot 3</td><td>Application container, DI, auto-configuration</td></tr>
+            <tr><td>Database</td><td>PostgreSQL</td><td>Persistent storage (port 6000)</td></tr>
+            <tr><td>Cache</td><td>Redis</td><td>JWT blacklisting (token revocation)</td></tr>
+            <tr><td>ORM</td><td>Hibernate / JPA</td><td>Object-Relational Mapping, @Version locking</td></tr>
+            <tr><td>Auth</td><td>Spring Security + JWT + OAuth2</td><td>Stateless auth, Google/GitHub login</td></tr>
+            <tr><td>MFA</td><td>TOTP (samstevens library)</td><td>Two-factor authentication with QR codes</td></tr>
+            <tr><td>Email</td><td>Spring Mail (Mailtrap)</td><td>Verification & password reset emails</td></tr>
+            <tr><td>Connection Pool</td><td>HikariCP</td><td>Database connection pooling</td></tr>
+            <tr><td>Build</td><td>Maven/Gradle</td><td>Dependency management</td></tr>
+        </table>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Package Structure</div>
+        <pre><code>src/main/java/org/example/shopflow/
++-- ShopflowApplication.java          <span class="comment">// Entry point</span>
++-- auth/                              <span class="comment">// Authentication module</span>
+|   +-- controller/                    <span class="comment">// REST endpoints</span>
+|   +-- dto/                           <span class="comment">// Request/Response objects</span>
+|   +-- entity/                        <span class="comment">// JPA entities (DB tables)</span>
+|   +-- repository/                    <span class="comment">// Data access layer</span>
+|   +-- security/                      <span class="comment">// JWT, filters, OAuth2</span>
+|   +-- service/                       <span class="comment">// Business logic</span>
++-- product/                           <span class="comment">// Product management</span>
+|   +-- strategy/                      <span class="comment">// Locking strategies (Strategy Pattern)</span>
++-- order/                             <span class="comment">// Order processing</span>
+|   +-- event/                         <span class="comment">// Async events (Observer Pattern)</span>
++-- flashsale/                         <span class="comment">// Flash sale with pessimistic lock</span>
++-- invoice/                           <span class="comment">// Auto-generated invoices</span>
++-- report/                            <span class="comment">// Daily batch reports</span>
+|   +-- scheduler/                     <span class="comment">// Cron jobs</span>
++-- user/                              <span class="comment">// User management</span>
++-- shared/                            <span class="comment">// Cross-cutting concerns</span>
+    +-- config/                        <span class="comment">// Security, CORS, Async config</span>
+    +-- exception/                     <span class="comment">// Global error handling</span>
+    +-- scheduler/                     <span class="comment">// Token cleanup</span></code></pre>
+    </div>
+
+    <!-- SECTION 2: DATABASE TABLES -->
+    <h2 id="database">2. Database Tables (Entity Relationship)</h2>
+
+    <div class="card">
+        <div class="card-title">Entity Relationship Diagram</div>
+        <div class="flow-diagram">
++------------------+       +------------------+       +------------------+
+|     users        |       |      roles       |       |   user_roles     |
++------------------+       +------------------+       +------------------+
+| id (UUID, PK)   |&lt;------| id (UUID, PK)   |       | user_id (FK)     |
+| email (unique)   |       | name (enum)      |       | role_id (FK)     |
+| password         |       | description      |       +------------------+
+| first_name       |       | created_at       |
+| last_name        |       | updated_at       |
+| email_verified   |       +------------------+
+| account_locked   |
+| enabled          |       +---------------------------+
+| failed_login_att |       |   refresh_tokens          |
+| last_login       |       +---------------------------+
+| password_changed |       | id (UUID, PK)             |
+| auth_provider    |       | token_hash (unique, idx)  |
+| provider_id      |       | user_id (FK) -----&gt; users |
+| mfa_enabled      |       | ip_address                |
+| mfa_secret       |       | user_agent                |
+| created_at       |       | browser                   |
+| updated_at       |       | operating_system          |
++------------------+       | device_type               |
+        |                  | expires_at                |
+        |                  | last_used_at              |
+        |                  | last_access_token_jti     |
+        |                  | revoked                   |
+        |                  | revoked_at                |
+        |                  +---------------------------+
+        |
+        |  +-----------------------------+     +-----------------------------+
+        +--| email_verification_tokens   |     | password_reset_tokens       |
+        |  +-----------------------------+     +-----------------------------+
+        |  | id (UUID, PK)               |     | id (UUID, PK)               |
+        |  | token (unique, indexed)     |     | token (unique, indexed)     |
+        |  | user_id (FK) -----&gt; users   |     | user_id (FK) -----&gt; users   |
+        |  | expires_at                  |     | expires_at                  |
+        |  | confirmed_at               |     | used_at                     |
+        |  +-----------------------------+     +-----------------------------+
+        |
+        |  +-----------------------------+
+        +--| mfa_recovery_codes          |
+           +-----------------------------+
+           | id (UUID, PK)               |
+           | user_id (FK) -----&gt; users   |
+           | code_hash                   |
+           | used                        |
+           | used_at                     |
+           +-----------------------------+
+
++------------------+       +------------------+       +------------------+
+|    products      |       |     orders       |       |   order_items    |
++------------------+       +------------------+       +------------------+
+| id (UUID, PK)   |       | id (UUID, PK)   |       | id (UUID, PK)   |
+| name             |       | user_id (FK)     |       | order_id (FK)   |
+| description      |&lt;------| status (enum)    |------&gt;| product_id (FK) |
+| price            |       | total_amount     |       | quantity         |
+| stock_quantity   |       | created_at       |       | unit_price       |
+| version (lock)   |       | updated_at       |       | subtotal         |
+| created_at       |       +------------------+       +------------------+
+| updated_at       |
++------------------+
+        |
+        |  +-----------------------------+     +-----------------------------+
+        +--| flash_sales                 |     | invoices                    |
+           +-----------------------------+     +-----------------------------+
+           | id (UUID, PK)               |     | id (UUID, PK)               |
+           | product_id (FK)             |     | order_id (FK, unique)       |
+           | discounted_price            |     | invoice_number (unique)     |
+           | total_quantity              |     | status (enum)               |
+           | remaining_quantity          |     | issued_at                   |
+           | start_time                  |     | total_amount                |
+           | end_time                    |     | created_at                  |
+           | active                      |     | updated_at                  |
+           | created_at                  |     +-----------------------------+
+           | updated_at                  |
+           +-----------------------------+
+                                               +-----------------------------+
+                                               | daily_sales_reports         |
+                                               +-----------------------------+
+                                               | id (UUID, PK)               |
+                                               | report_date (unique)        |
+                                               | total_orders                |
+                                               | total_revenue               |
+                                               | processed_at                |
+                                               | status (enum)               |
+                                               | created_at                  |
+                                               | updated_at                  |
+                                               +-----------------------------+</div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Table Details</div>
+        <table>
+            <tr><th>Table</th><th>Columns</th><th>Key Features</th></tr>
+            <tr><td><code>users</code></td><td>14 columns</td><td>UUID PK, email unique, account lockout after 5 failures, MFA support, OAuth2 provider tracking</td></tr>
+            <tr><td><code>roles</code></td><td>4 columns</td><td>ROLE_USER, ROLE_ADMIN enum. Seeded by DataInitializer on startup</td></tr>
+            <tr><td><code>user_roles</code></td><td>2 FKs</td><td>Many-to-Many join table between users and roles</td></tr>
+            <tr><td><code>refresh_tokens</code></td><td>13 columns</td><td>Hashed token storage, session metadata (IP, browser, OS), revocation support, indexed by token_hash and user_id</td></tr>
+            <tr><td><code>email_verification_tokens</code></td><td>5 columns</td><td>24-hour expiry, one-time use (confirmed_at marks usage)</td></tr>
+            <tr><td><code>password_reset_tokens</code></td><td>5 columns</td><td>30-minute expiry, one-time use (used_at marks usage)</td></tr>
+            <tr><td><code>mfa_recovery_codes</code></td><td>5 columns</td><td>8 codes per user, SHA-256 hashed, single-use</td></tr>
+            <tr><td><code>products</code></td><td>7 columns</td><td><strong>@Version</strong> column for optimistic locking (auto-increment on UPDATE)</td></tr>
+            <tr><td><code>orders</code></td><td>6 columns</td><td>Status enum: PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED</td></tr>
+            <tr><td><code>order_items</code></td><td>6 columns</td><td>Links order to products with quantity and price snapshot</td></tr>
+            <tr><td><code>flash_sales</code></td><td>9 columns</td><td>Time-bounded sales, remaining_quantity decremented under PESSIMISTIC_WRITE lock</td></tr>
+            <tr><td><code>invoices</code></td><td>7 columns</td><td>One-to-one with order, auto-generated async after order confirmation</td></tr>
+            <tr><td><code>daily_sales_reports</code></td><td>7 columns</td><td>One per day, generated by midnight batch job in chunks of 500</td></tr>
+        </table>
+    </div>
+
+    <!-- SECTION 3: AUTH -->
+    <h2 id="auth">3. Authentication & Security (Business Logic)</h2>
+
+    <div class="card">
+        <div class="card-title">Authentication Flow</div>
+        <div class="flow-diagram">
+USER REGISTRATION:
+  Client --POST /api/auth/register--&gt; AuthController
+    --&gt; AuthenticationService.register()
+      1. Check email uniqueness
+      2. Find ROLE_USER from DB
+      3. Hash password (BCrypt, strength=12)
+      4. Save User entity
+      5. Generate UUID verification token
+      6. Save EmailVerificationToken (expires in 24h)
+      7. Send verification email (ASYNC - doesn't block response)
+    &lt;-- 201 Created "Check your email"
+
+EMAIL VERIFICATION:
+  Client --GET /api/auth/verify-email?token=xxx--&gt; AuthController
+    --&gt; AuthenticationService.verifyEmail()
+      1. Look up token in DB
+      2. Check not already used (confirmed_at == null)
+      3. Check not expired (expiresAt > now)
+      4. Mark token as confirmed
+      5. Set user.emailVerified = true
+    &lt;-- 200 OK
+
+LOGIN (without MFA):
+  Client --POST /api/auth/login--&gt; AuthController
+    --&gt; AuthenticationService.login()
+      1. Find user by email
+      2. Check email is verified
+      3. AuthenticationManager.authenticate() (Spring Security)
+         - On failure: increment failedLoginAttempts
+         - If attempts >= 5: lock account
+      4. Reset failedLoginAttempts to 0
+      5. Generate JWT access token (15min TTL, contains userId + email + jti)
+      6. Create session (refresh token in DB, hashed)
+      7. Link access token JTI to session
+    &lt;-- 200 OK { accessToken, refreshToken (in HttpOnly cookie) }
+
+LOGIN (with MFA):
+  Same as above but at step 5:
+      5. Generate short-lived MFA token (5min)
+    &lt;-- 200 OK { mfaRequired: true, mfaToken: "..." }
+
+  Client --POST /api/auth/mfa/verify { mfaToken, code }--&gt;
+    --&gt; Validate MFA token, verify TOTP code
+    &lt;-- 200 OK { accessToken, refreshToken }
+
+TOKEN REFRESH (Rotation):
+  Client --POST /api/auth/refresh (cookie has refresh token)--&gt;
+    --&gt; SessionService.rotateRefreshToken()
+      1. Hash the raw token, look up in DB
+      2. If REVOKED: security alert! Revoke ALL user sessions (replay attack detected)
+      3. If expired: reject
+      4. Mark old token as revoked
+      5. Create brand new session (new refresh token)
+      6. Generate new access token
+    &lt;-- 200 OK { newAccessToken, newRefreshToken (cookie) }
+
+LOGOUT:
+  Client --POST /api/auth/logout--&gt;
+    1. Blacklist current access token JTI in Redis (TTL = remaining expiry)
+    2. Revoke refresh token in DB
+    3. Clear refresh token cookie
+    &lt;-- 200 OK</div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">JWT Architecture</div>
+        <div class="highlight-box">
+            <strong>Why JTI (JWT ID)?</strong> Each access token has a unique ID stored in the <code>jti</code> claim. When a user logs out, the JTI is stored in Redis with a TTL matching the token's remaining lifetime. On every request, the <code>JwtAuthenticationFilter</code> checks Redis to see if the token's JTI is blacklisted. This allows stateless JWT auth with the ability to revoke tokens before natural expiry.
+        </div>
+        <table>
+            <tr><th>Token Type</th><th>Storage</th><th>Lifetime</th><th>Purpose</th></tr>
+            <tr><td>Access Token (JWT)</td><td>Client (Authorization header)</td><td>15 minutes</td><td>Authenticate API requests</td></tr>
+            <tr><td>Refresh Token</td><td>HttpOnly cookie + DB (hashed)</td><td>7 days</td><td>Get new access tokens without re-login</td></tr>
+            <tr><td>MFA Token (JWT)</td><td>Response body</td><td>5 minutes</td><td>Temporary token between password verify and TOTP verify</td></tr>
+            <tr><td>Email Verification</td><td>DB only</td><td>24 hours</td><td>Confirm email ownership</td></tr>
+            <tr><td>Password Reset</td><td>DB only</td><td>30 minutes</td><td>Allow password change</td></tr>
+        </table>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Security Filter Chain</div>
+        <p>Two ordered filter chains handle different URL patterns:</p>
+        <pre><code><span class="comment">// Order 1: OAuth2 endpoints (Google, GitHub login)</span>
+<span class="annotation">@Order(1)</span> - matches /oauth2/**, /login/oauth2/**
+  - Sessions: IF_REQUIRED (OAuth2 needs temporary session for state)
+  - Handles OAuth2 login flow, success/failure handlers
+
+<span class="comment">// Order 2: All API endpoints</span>
+<span class="annotation">@Order(2)</span> - matches everything else
+  - Sessions: STATELESS (pure JWT, no server-side session)
+  - Public: register, login, refresh, verify-email, products (GET)
+  - Admin only: /api/admin/**
+  - Authenticated: everything else
+  - JwtAuthenticationFilter runs BEFORE UsernamePasswordAuthenticationFilter</code></pre>
+    </div>
+
+    <!-- SECTION 4: ORDERS -->
+    <h2 id="orders">4. Order Processing & Concurrency Control</h2>
+
+    <div class="card">
+        <div class="card-title">Strategy Pattern for Locking</div>
+        <p>The system uses the <strong>Strategy Pattern</strong> to choose between two locking mechanisms depending on the purchase scenario:</p>
+        <div class="flow-diagram">
+                  +-------------------+
+                  | PurchaseStrategy  |  (Interface)
+                  | + purchase(id, q) |
+                  +-------------------+
+                     /            \
+                    /              \
++------------------------+   +---------------------------+
+| OptimisticPurchase     |   | PessimisticPurchase       |
+| Strategy               |   | Strategy                  |
++------------------------+   +---------------------------+
+| - Uses @Version column |   | - Uses SELECT ... FOR     |
+| - No DB lock held      |   |   UPDATE (exclusive lock) |
+| - Retry up to 3 times  |   | - Other threads WAIT      |
+| - Best for normal      |   | - Best for flash sales    |
+|   purchases (low       |   |   (high contention,       |
+|   contention)          |   |   thousands competing)    |
++------------------------+   +---------------------------+</div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Optimistic Locking (Normal Purchases)</div>
+        <div class="highlight-box">
+            <strong>How it works:</strong> The <code>products</code> table has a <code>version</code> column. When JPA saves a product, it generates: <code>UPDATE products SET stock_quantity=?, version=version+1 WHERE id=? AND version=?</code>. If another thread already changed the version, the WHERE clause matches 0 rows, and Hibernate throws <code>OptimisticLockException</code>. The strategy retries up to 3 times.
+        </div>
+        <pre><code><span class="comment">// Product entity - the @Version column is the key</span>
+<span class="annotation">@Version</span>
+<span class="keyword">private</span> Long version = 0L;
+
+<span class="comment">// What happens under the hood:</span>
+Thread A: reads product (version=5, stock=100)
+Thread B: reads product (version=5, stock=100)
+Thread A: saves (stock=99) -> UPDATE ... WHERE version=5 -> SUCCESS, version becomes 6
+Thread B: saves (stock=99) -> UPDATE ... WHERE version=5 -> 0 rows matched! EXCEPTION!
+Thread B: retries -> reads (version=6, stock=99) -> saves (stock=98) -> SUCCESS</code></pre>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Pessimistic Locking (Flash Sales)</div>
+        <div class="highlight-box">
+            <strong>How it works:</strong> The repository uses <code>@Lock(LockModeType.PESSIMISTIC_WRITE)</code> which generates <code>SELECT ... FOR UPDATE</code>. This tells PostgreSQL to exclusively lock the row. Any other transaction trying to read the same row will <strong>block (wait)</strong> until the first transaction commits or rolls back.
+        </div>
+        <pre><code><span class="comment">// FlashSaleRepository - the lock is declared here</span>
+<span class="annotation">@Lock</span>(LockModeType.PESSIMISTIC_WRITE)
+<span class="annotation">@Query</span>(<span class="string">"SELECT f FROM FlashSale f WHERE f.id = :id"</span>)
+Optional&lt;FlashSale&gt; findByIdWithLock(@Param(<span class="string">"id"</span>) UUID id);
+
+<span class="comment">// What happens under the hood:</span>
+Thread A: SELECT ... FOR UPDATE -> gets lock, reads remaining=50
+Thread B: SELECT ... FOR UPDATE -> BLOCKS (waits for Thread A)
+Thread C: SELECT ... FOR UPDATE -> BLOCKS (waits)
+Thread A: remaining=49, COMMIT -> lock released
+Thread B: unblocks, reads remaining=49, sets 48, COMMIT
+Thread C: unblocks, reads remaining=48, sets 47, COMMIT
+<span class="comment">// No retries needed - threads are serialized at DB level</span></code></pre>
+    </div>
+
+    <!-- SECTION 5: FLASH SALE -->
+    <h2 id="flashsale">5. Flash Sales</h2>
+
+    <div class="card">
+        <div class="card-title">Flash Sale Lifecycle</div>
+        <div class="flow-diagram">
+ADMIN creates flash sale:
+  POST /api/flash-sales { productId, discountedPrice, totalQuantity, startTime, endTime }
+    -> Saves FlashSale entity with remainingQuantity = totalQuantity, active = true
+
+USERS purchase during flash sale:
+  POST /api/orders/flash-sale { flashSaleId, quantity }
+    -> OrderService.placeFlashSaleOrder()
+      -> PessimisticPurchaseStrategy.purchase()
+        1. SELECT ... FOR UPDATE (locks the flash_sales row)
+        2. Check flash sale is still active
+        3. Check remaining_quantity >= requested quantity
+        4. Decrement remaining_quantity
+        5. If remaining_quantity == 0: set active = false (sold out!)
+        6. COMMIT (releases lock, next thread proceeds)
+      -> Create Order + OrderItem
+      -> Publish OrderPlacedEvent (async invoice generation)
+    &lt;-- 200 OK { order details }</div>
+        <div class="warning-box">
+            <strong>Why pessimistic here?</strong> In a flash sale, thousands of users hit the same product simultaneously. Optimistic locking would cause massive retry storms (almost every thread conflicts). Pessimistic locking serializes access — only one thread at a time touches the stock, so there's zero wasted work.
+        </div>
+    </div>
+
+    <!-- SECTION 6: ASYNC -->
+    <h2 id="async">6. Async Event System (Observer Pattern)</h2>
+
+    <div class="card">
+        <div class="card-title">How Async Processing Works</div>
+        <div class="flow-diagram">
+HTTP Request Thread                    orderExecutor Thread Pool
+==================                    ==========================
+
+POST /api/orders
+  |
+  v
+OrderService.placeOrder()
+  |-- Save order to DB
+  |-- eventPublisher.publishEvent(OrderPlacedEvent)
+  |-- Return order to controller          +--&gt; OrderEventListener.onOrderPlaced()
+  |                                       |      |
+  v                                       |      v
+HTTP 200 OK sent to user                  |    InvoiceService.generateInvoice()
+(user doesn't wait!)                      |      |-- Check duplicate
+                                          |      |-- Build invoice number
+                                          |      |-- Save Invoice entity
+                                          |      +-- Log success
+                                          |
+                              @Async("orderExecutor") makes this
+                              run in a SEPARATE thread from the pool</div>
+        <p><strong>Key benefit:</strong> The user gets their order confirmation in ~50ms. Invoice generation (which could involve PDF creation, email sending, etc.) happens in the background without blocking the HTTP response.</p>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Observer Pattern Components</div>
+        <table>
+            <tr><th>Component</th><th>Role</th><th>File</th></tr>
+            <tr><td><code>OrderPlacedEvent</code></td><td>Event object (carries the Order)</td><td>order/event/OrderPlacedEvent.java</td></tr>
+            <tr><td><code>ApplicationEventPublisher</code></td><td>Spring's event bus (Subject)</td><td>Built-in Spring</td></tr>
+            <tr><td><code>OrderEventListener</code></td><td>Observer - reacts to event</td><td>order/event/OrderEventListener.java</td></tr>
+            <tr><td><code>@Async("orderExecutor")</code></td><td>Makes listener run in background thread</td><td>Annotation on listener method</td></tr>
+        </table>
+    </div>
+
+    <!-- SECTION 7: BATCH -->
+    <h2 id="batch">7. Batch Processing & Reporting</h2>
+
+    <div class="card">
+        <div class="card-title">Daily Sales Report Generation</div>
+        <div class="flow-diagram">
+Every day at 00:00 UTC (cron: "0 0 0 * * *")
+  |
+  v
+DailySalesJob.runDailyReport()  [runs in batchExecutor thread pool]
+  |
+  v
+DailySalesReportService.generateReportForDate(yesterday)
+  |
+  |-- Check if report already exists (idempotent)
+  |-- Create report entity with status=PROCESSING
+  |
+  |-- CHUNK LOOP (page size = 500):
+  |     |
+  |     |-- Page 0: fetch orders 1-500 from yesterday
+  |     |     +-- sum revenue, count orders
+  |     |
+  |     |-- Page 1: fetch orders 501-1000
+  |     |     +-- sum revenue, count orders
+  |     |
+  |     |-- Page 2: fetch orders 1001-1500
+  |     |     +-- sum revenue, count orders
+  |     |
+  |     +-- ... until no more pages
+  |
+  |-- Update report: totalOrders, totalRevenue, processedAt
+  |-- Set status = COMPLETED
+  |
+  v
+Done (if exception: status = FAILED)</div>
+        <div class="highlight-box">
+            <strong>Why chunking?</strong> If you had 1 million orders yesterday and loaded them all into memory at once, you'd get an OutOfMemoryError. By fetching 500 at a time (using Spring Data's <code>Pageable</code>), you keep memory usage constant regardless of data volume.
+        </div>
+    </div>
+
+    <!-- SECTION 8: RESOURCE MANAGEMENT -->
+    <h2 id="resources">8. Resource Management (Connection Pools)</h2>
+
+    <div class="card">
+        <div class="card-title">Why Connection Pools?</div>
+        <div class="warning-box">
+            <strong>Problem without pools:</strong> Every HTTP request needs a database connection. Creating a new TCP connection to PostgreSQL takes ~5-10ms. Under 1000 concurrent requests, you'd create 1000 connections, overwhelming the DB and wasting time on connection setup.
+            <br><br>
+            <strong>Solution:</strong> Keep a pool of pre-created connections. Threads borrow a connection, use it, return it. Connection creation happens once at startup, not per-request.
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <div class="card">
+            <div class="card-title">HikariCP (Database Pool)</div>
+            <table>
+                <tr><th>Setting</th><th>Value</th><th>Meaning</th></tr>
+                <tr><td><code>maximum-pool-size</code></td><td>10</td><td>Max 10 simultaneous DB connections</td></tr>
+                <tr><td><code>minimum-idle</code></td><td>5</td><td>Always keep 5 connections warm</td></tr>
+                <tr><td><code>idle-timeout</code></td><td>300s</td><td>Close idle connections after 5min</td></tr>
+                <tr><td><code>connection-timeout</code></td><td>30s</td><td>Fail if no connection available in 30s</td></tr>
+                <tr><td><code>max-lifetime</code></td><td>30min</td><td>Recycle connections (prevents stale)</td></tr>
+                <tr><td><code>leak-detection</code></td><td>60s</td><td>Warn if connection held > 60s</td></tr>
+            </table>
+        </div>
+        <div class="card">
+            <div class="card-title">Redis Lettuce Pool</div>
+            <table>
+                <tr><th>Setting</th><th>Value</th><th>Meaning</th></tr>
+                <tr><td><code>max-active</code></td><td>10</td><td>Max 10 simultaneous Redis connections</td></tr>
+                <tr><td><code>max-idle</code></td><td>5</td><td>Max 5 idle connections in pool</td></tr>
+                <tr><td><code>min-idle</code></td><td>2</td><td>Always keep 2 warm</td></tr>
+                <tr><td><code>max-wait</code></td><td>2s</td><td>Fail if no connection in 2s</td></tr>
+            </table>
+            <p style="margin-top:0.5rem"><strong>Used for:</strong> JWT blacklist checks on every authenticated request. Without pooling, each of these checks would open a new TCP connection to Redis.</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Resource Flow Under Load</div>
+        <div class="flow-diagram">
+Incoming HTTP Requests (e.g. 50 concurrent users)
+  |
+  v
+Tomcat Thread Pool (default: 200 threads)
+  |
+  |-- Each thread needs resources:
+  |     |
+  |     +-- HikariCP: borrows 1 of 10 DB connections
+  |     |     (if all 10 busy, thread WAITS up to 30s)
+  |     |
+  |     +-- Redis Pool: borrows 1 of 10 Redis connections
+  |           (for JWT blacklist check)
+  |
+  |-- After request completes:
+  |     +-- Connection returned to pool (not closed!)
+  |     +-- Ready for next request immediately
+  |
+  v
+If pool exhausted:
+  - HikariCP: thread waits (connection-timeout: 30s), then throws exception
+  - Redis: thread waits (max-wait: 2s), then throws exception
+  - This is INTENTIONAL: prevents overwhelming the database</div>
+    </div>
+
+    <!-- SECTION 9: THREAD POOLS -->
+    <h2 id="threads">9. Thread Pools Configuration</h2>
+
+    <div class="card">
+        <div class="card-title">Thread Pool Architecture</div>
+        <p>The application has <strong>3 separate thread pools</strong> to isolate different workloads:</p>
+        <div class="flow-diagram">
++================================================================+
+|                    TOMCAT THREAD POOL                           |
+|  (handles HTTP requests, default ~200 threads)                  |
+|  - Managed by Spring Boot auto-configuration                   |
+|  - Each incoming HTTP request gets one thread                  |
++================================================================+
+         |                              |
+         v                              v
++========================+    +========================+
+|   orderExecutor        |    |    batchExecutor       |
+|   (Async tasks)        |    |    (Scheduled jobs)    |
++========================+    +========================+
+| Core:  5 threads       |    | Core:  2 threads       |
+| Max:   20 threads      |    | Max:   5 threads       |
+| Queue: 100 tasks       |    | Queue: 10 tasks        |
+| Prefix: order-async-   |    | Prefix: batch-job-     |
+| Rejection: CallerRuns  |    | Rejection: CallerRuns  |
++========================+    +========================+
+| Used by:               |    | Used by:               |
+| - OrderEventListener   |    | - DailySalesJob        |
+|   (invoice generation) |    |   (nightly report)     |
+| - EmailService         |    |                        |
+|   (send emails)        |    |                        |
++========================+    +========================+</div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Thread Pool Parameters Explained</div>
+        <table>
+            <tr><th>Parameter</th><th>orderExecutor</th><th>batchExecutor</th><th>What it means</th></tr>
+            <tr><td><code>corePoolSize</code></td><td>5</td><td>2</td><td>Threads always alive, even when idle. Handles normal steady-state load.</td></tr>
+            <tr><td><code>maxPoolSize</code></td><td>20</td><td>5</td><td>Maximum threads created under peak load (only when queue is full).</td></tr>
+            <tr><td><code>queueCapacity</code></td><td>100</td><td>10</td><td>Tasks waiting in line when all core threads are busy. Absorbs bursts.</td></tr>
+            <tr><td><code>rejectedExecutionHandler</code></td><td colspan="2">CallerRunsPolicy</td><td>When queue AND max threads are full: the calling thread runs the task itself. Prevents task loss — graceful degradation.</td></tr>
+        </table>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Thread Pool Lifecycle Under Load</div>
+        <pre><code><span class="comment">// orderExecutor example: what happens as orders increase</span>
+
+Orders/sec: 1-5    -> 5 core threads handle it, queue stays empty
+Orders/sec: 6-105  -> 5 core threads busy, tasks queue up (up to 100)
+Orders/sec: 106+   -> Queue full! New threads created (up to 20 total)
+Orders/sec: 120+   -> 20 threads busy + 100 queued + NEW tasks:
+                      CallerRunsPolicy kicks in!
+                      The Tomcat HTTP thread runs the task itself.
+                      This slows down HTTP responses (backpressure)
+                      but NO task is ever dropped or lost.</code></pre>
+        <div class="highlight-box">
+            <strong>Why separate pools?</strong> If both order processing and batch reporting shared one pool, a large batch job (processing 1M orders) could consume all threads, leaving zero capacity for real-time order invoice generation. Isolation prevents starvation.
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Visual: orderExecutor Pool State</div>
+        <p><strong>Core threads (always alive):</strong></p>
+        <div class="pool-viz">
+            <div class="pool-thread thread-core">1</div>
+            <div class="pool-thread thread-core">2</div>
+            <div class="pool-thread thread-core">3</div>
+            <div class="pool-thread thread-core">4</div>
+            <div class="pool-thread thread-core">5</div>
+        </div>
+        <p><strong>Max threads (created on demand when queue is full):</strong></p>
+        <div class="pool-viz">
+            <div class="pool-thread thread-core">1</div>
+            <div class="pool-thread thread-core">2</div>
+            <div class="pool-thread thread-core">3</div>
+            <div class="pool-thread thread-core">4</div>
+            <div class="pool-thread thread-core">5</div>
+            <div class="pool-thread thread-max">6</div>
+            <div class="pool-thread thread-max">7</div>
+            <div class="pool-thread thread-max">8</div>
+            <div class="pool-thread thread-max">9</div>
+            <div class="pool-thread thread-max">10</div>
+            <div class="pool-thread thread-max">11</div>
+            <div class="pool-thread thread-max">12</div>
+            <div class="pool-thread thread-max">13</div>
+            <div class="pool-thread thread-max">14</div>
+            <div class="pool-thread thread-max">15</div>
+            <div class="pool-thread thread-max">16</div>
+            <div class="pool-thread thread-max">17</div>
+            <div class="pool-thread thread-max">18</div>
+            <div class="pool-thread thread-max">19</div>
+            <div class="pool-thread thread-max">20</div>
+        </div>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color: var(--text-muted);">
+            <span style="display:inline-block;width:12px;height:12px;background:var(--primary);border-radius:50%;"></span> Solid = Core (always alive) &nbsp;&nbsp;
+            <span style="display:inline-block;width:12px;height:12px;background:#93c5fd;border:2px dashed var(--primary);border-radius:50%;"></span> Dashed = Elastic (created on demand, destroyed when idle)
+        </p>
+    </div>
+
+    <!-- SECTION 10: LINE BY LINE -->
+    <h2 id="line-by-line">10. Line-by-Line Code Explanation</h2>
+
+    <h3>ShopflowApplication.java - Entry Point</h3>
+    <div class="card">
+        <pre><code><span class="annotation">@SpringBootApplication</span>   <span class="comment">// Combines @Configuration + @EnableAutoConfiguration + @ComponentScan</span>
+                           <span class="comment">// Tells Spring to scan this package and all sub-packages for beans</span>
+<span class="annotation">@EnableJpaAuditing</span>       <span class="comment">// Activates @CreatedDate and @LastModifiedDate in Auditable class</span>
+                           <span class="comment">// Without this, created_at/updated_at would stay null</span>
+<span class="annotation">@EnableAsync</span>             <span class="comment">// Allows @Async methods to run in separate threads</span>
+                           <span class="comment">// Without this, @Async is ignored and runs synchronously</span>
+<span class="annotation">@EnableScheduling</span>        <span class="comment">// Allows @Scheduled methods (cron jobs) to trigger</span>
+                           <span class="comment">// Without this, DailySalesJob would never execute</span>
+<span class="keyword">public class</span> ShopflowApplication {
+    <span class="keyword">public static void</span> main(String[] args) {
+        SpringApplication.run(ShopflowApplication.class, args);
+        <span class="comment">// Boots the Spring container:</span>
+        <span class="comment">//   1. Creates ApplicationContext (the IoC container)</span>
+        <span class="comment">//   2. Scans for @Component, @Service, @Repository, @Controller</span>
+        <span class="comment">//   3. Resolves dependencies and injects them</span>
+        <span class="comment">//   4. Runs CommandLineRunner beans (DataInitializer)</span>
+        <span class="comment">//   5. Starts embedded Tomcat on port 8080</span>
+    }
+}</code></pre>
+    </div>
+
+    <h3>AsyncConfig.java - Thread Pool Definitions</h3>
+    <div class="card">
+        <pre><code><span class="annotation">@Configuration</span>  <span class="comment">// Marks this class as a source of bean definitions</span>
+<span class="annotation">@EnableAsync</span>     <span class="comment">// (redundant with main class, but makes config self-documenting)</span>
+<span class="annotation">@EnableScheduling</span>
+<span class="keyword">public class</span> AsyncConfig {
+
+    <span class="annotation">@Bean</span>(name = <span class="string">"orderExecutor"</span>)  <span class="comment">// Registers this executor in Spring's context</span>
+                                     <span class="comment">// @Async("orderExecutor") references this name</span>
+    <span class="keyword">public</span> Executor orderExecutor() {
+        ThreadPoolTaskExecutor executor = <span class="keyword">new</span> ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(5);        <span class="comment">// 5 threads always alive</span>
+        executor.setMaxPoolSize(20);        <span class="comment">// up to 20 under pressure</span>
+        executor.setQueueCapacity(100);     <span class="comment">// 100 tasks can wait in line</span>
+        executor.setThreadNamePrefix(<span class="string">"order-async-"</span>);  <span class="comment">// visible in logs: "order-async-1"</span>
+        executor.setRejectedExecutionHandler(
+            <span class="keyword">new</span> ThreadPoolExecutor.CallerRunsPolicy());
+            <span class="comment">// When everything is full (20 threads + 100 queue):</span>
+            <span class="comment">// Instead of throwing RejectedExecutionException,</span>
+            <span class="comment">// the CALLING thread (Tomcat HTTP thread) runs the task.</span>
+            <span class="comment">// This creates backpressure: HTTP responses slow down,</span>
+            <span class="comment">// which naturally throttles incoming requests.</span>
+        executor.initialize();  <span class="comment">// Creates the internal thread pool</span>
+        <span class="keyword">return</span> executor;
+    }
+
+    <span class="annotation">@Bean</span>(name = <span class="string">"batchExecutor"</span>)  <span class="comment">// Separate pool for batch jobs</span>
+    <span class="keyword">public</span> Executor batchExecutor() {
+        ThreadPoolTaskExecutor executor = <span class="keyword">new</span> ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);       <span class="comment">// Only 2 core — batch jobs are rare</span>
+        executor.setMaxPoolSize(5);        <span class="comment">// Max 5 — don't starve DB connections</span>
+        executor.setQueueCapacity(10);     <span class="comment">// Small queue — batch jobs are few</span>
+        executor.setThreadNamePrefix(<span class="string">"batch-job-"</span>);
+        executor.setRejectedExecutionHandler(
+            <span class="keyword">new</span> ThreadPoolExecutor.CallerRunsPolicy());
+        executor.initialize();
+        <span class="keyword">return</span> executor;
+    }
+}</code></pre>
+    </div>
+
+    <h3>OptimisticPurchaseStrategy.java - Retry Loop</h3>
+    <div class="card">
+        <pre><code><span class="annotation">@Component</span>(<span class="string">"optimisticPurchase"</span>)  <span class="comment">// Spring bean with qualifier name</span>
+<span class="keyword">public class</span> OptimisticPurchaseStrategy <span class="keyword">implements</span> PurchaseStrategy {
+
+    <span class="keyword">private static final int</span> MAX_RETRIES = 3;  <span class="comment">// Give up after 3 conflicts</span>
+
+    <span class="annotation">@Override</span>
+    <span class="annotation">@Transactional</span>  <span class="comment">// Each attempt runs in its own transaction</span>
+    <span class="keyword">public</span> Product purchase(UUID productId, <span class="keyword">int</span> quantity) {
+        <span class="keyword">int</span> attempt = 0;
+        <span class="keyword">while</span> (attempt < MAX_RETRIES) {
+            <span class="keyword">try</span> {
+                <span class="keyword">return</span> attemptPurchase(productId, quantity);
+            } <span class="keyword">catch</span> (ObjectOptimisticLockingFailureException ex) {
+                <span class="comment">// Another thread modified the product between our READ and SAVE</span>
+                <span class="comment">// The @Version check failed: WHERE version=X matched 0 rows</span>
+                attempt++;
+                <span class="keyword">if</span> (attempt >= MAX_RETRIES) {
+                    <span class="keyword">throw new</span> RuntimeException(<span class="string">"Product is being updated..."</span>);
+                }
+                <span class="comment">// Otherwise: loop again, re-read fresh data, try again</span>
+            }
+        }
+    }
+
+    <span class="keyword">private</span> Product attemptPurchase(UUID productId, <span class="keyword">int</span> quantity) {
+        Product product = productRepository.findById(productId)  <span class="comment">// SELECT * FROM products WHERE id=?</span>
+                .orElseThrow(...);
+
+        <span class="keyword">if</span> (product.getStockQuantity() < quantity) {
+            <span class="keyword">throw new</span> RuntimeException(<span class="string">"Insufficient stock"</span>);
+        }
+
+        product.setStockQuantity(product.getStockQuantity() - quantity);
+        <span class="keyword">return</span> productRepository.save(product);
+        <span class="comment">// JPA generates:</span>
+        <span class="comment">// UPDATE products SET stock_quantity=?, version=version+1</span>
+        <span class="comment">// WHERE id=? AND version=?</span>
+        <span class="comment">// If version changed -> 0 rows updated -> OptimisticLockException</span>
+    }
+}</code></pre>
+    </div>
+
+    <h3>OrderEventListener.java - Async Observer</h3>
+    <div class="card">
+        <pre><code><span class="annotation">@Component</span>
+<span class="keyword">public class</span> OrderEventListener {
+
+    <span class="keyword">private final</span> InvoiceService invoiceService;
+
+    <span class="annotation">@Async</span>(<span class="string">"orderExecutor"</span>)  <span class="comment">// THIS IS THE KEY LINE</span>
+    <span class="comment">// Without @Async: this method runs in the SAME thread as the HTTP request</span>
+    <span class="comment">// With @Async: Spring intercepts the call, submits it to "orderExecutor"</span>
+    <span class="comment">// pool, and returns immediately. The HTTP response goes out before</span>
+    <span class="comment">// this method even starts executing.</span>
+    <span class="annotation">@EventListener</span>  <span class="comment">// Spring calls this whenever OrderPlacedEvent is published</span>
+    <span class="keyword">public void</span> onOrderPlaced(OrderPlacedEvent event) {
+        Order order = event.getOrder();
+        <span class="comment">// This runs in thread "order-async-3" (or similar)</span>
+        <span class="comment">// The original HTTP thread already sent 200 OK to the user</span>
+
+        invoiceService.generateInvoice(order);
+        <span class="comment">// If this fails, the order is STILL confirmed</span>
+        <span class="comment">// Invoice generation is best-effort, logged for manual retry</span>
+    }
+}</code></pre>
+    </div>
+
+    <h3>DailySalesReportService.java - Batch Chunking</h3>
+    <div class="card">
+        <pre><code><span class="keyword">private static final int</span> CHUNK_SIZE = 500;  <span class="comment">// Process 500 orders per DB query</span>
+
+<span class="annotation">@Transactional</span>
+<span class="keyword">public void</span> generateReportForDate(LocalDate date) {
+    <span class="comment">// Idempotency: if report exists, skip (safe to re-run)</span>
+    <span class="keyword">if</span> (reportRepository.existsByReportDate(date)) <span class="keyword">return</span>;
+
+    <span class="comment">// Create report in PROCESSING state (visible in DB even if job crashes)</span>
+    DailySalesReport report = DailySalesReport.builder()
+            .reportDate(date)
+            .status(ReportStatus.PROCESSING)
+            .build();
+    report = reportRepository.save(report);
+
+    <span class="comment">// Time range: full day in UTC</span>
+    Instant from = date.atStartOfDay(ZoneOffset.UTC).toInstant();
+    Instant to = date.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+
+    <span class="keyword">int</span> page = 0;
+    <span class="keyword">int</span> totalOrders = 0;
+    BigDecimal totalRevenue = BigDecimal.ZERO;
+    Page&lt;Order&gt; chunk;
+
+    <span class="keyword">do</span> {
+        <span class="comment">// Fetch only CHUNK_SIZE orders at a time</span>
+        <span class="comment">// SQL: SELECT * FROM orders WHERE status='CONFIRMED'</span>
+        <span class="comment">//      AND created_at BETWEEN ? AND ? LIMIT 500 OFFSET ?</span>
+        chunk = orderRepository.findByStatusAndCreatedAtBetween(
+                OrderStatus.CONFIRMED, from, to,
+                PageRequest.of(page, CHUNK_SIZE));
+
+        <span class="comment">// Process this chunk in memory (max 500 objects)</span>
+        <span class="keyword">for</span> (Order order : chunk.getContent()) {
+            totalRevenue = totalRevenue.add(order.getTotalAmount());
+        }
+        totalOrders += chunk.getContent().size();
+        page++;
+
+    } <span class="keyword">while</span> (chunk.hasNext());  <span class="comment">// hasNext()=false when last page</span>
+
+    <span class="comment">// Persist final results</span>
+    report.setTotalOrders(totalOrders);
+    report.setTotalRevenue(totalRevenue);
+    report.setStatus(ReportStatus.COMPLETED);
+    reportRepository.save(report);
+}</code></pre>
+    </div>
+
+    <h3>TokenBlacklistService.java - Redis Usage</h3>
+    <div class="card">
+        <pre><code><span class="annotation">@Service</span>
+<span class="keyword">public class</span> TokenBlacklistService {
+
+    <span class="keyword">private final</span> StringRedisTemplate redisTemplate;
+    <span class="comment">// StringRedisTemplate is Spring's Redis client</span>
+    <span class="comment">// It uses the Lettuce connection pool configured in application.yml</span>
+
+    <span class="keyword">private static final</span> String BLACKLIST_PREFIX = <span class="string">"jwt:blacklist:"</span>;
+
+    <span class="keyword">public void</span> blacklist(String jti, <span class="keyword">long</span> remainingMs) {
+        <span class="comment">// Store in Redis: key="jwt:blacklist:abc-123", value="1"</span>
+        <span class="comment">// TTL = remaining token lifetime (e.g., 8 minutes left)</span>
+        <span class="comment">// After TTL expires, Redis auto-deletes the key</span>
+        <span class="comment">// (no point keeping it — the JWT itself has also expired by then)</span>
+        String key = BLACKLIST_PREFIX + jti;
+        redisTemplate.opsForValue().set(key, <span class="string">"1"</span>, Duration.ofMillis(remainingMs));
+    }
+
+    <span class="keyword">public boolean</span> isBlacklisted(String jti) {
+        <span class="comment">// Called on EVERY authenticated request by JwtAuthenticationFilter</span>
+        <span class="comment">// Redis lookup: O(1), ~0.1ms — extremely fast</span>
+        <span class="comment">// Returns true if the key exists (token was revoked)</span>
+        <span class="keyword">return</span> redisTemplate.hasKey(BLACKLIST_PREFIX + jti);
+    }
+}</code></pre>
+    </div>
+
+    <h3>JwtAuthenticationFilter.java - Request Pipeline</h3>
+    <div class="card">
+        <pre><code><span class="annotation">@Component</span>
+<span class="keyword">public class</span> JwtAuthenticationFilter <span class="keyword">extends</span> OncePerRequestFilter {
+    <span class="comment">// OncePerRequestFilter = guaranteed to run exactly once per HTTP request</span>
+    <span class="comment">// (even if request is forwarded internally)</span>
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">protected void</span> doFilterInternal(request, response, filterChain) {
+
+        String jwt = extractTokenFromRequest(request);
+        <span class="comment">// Extracts "Bearer xxx" from Authorization header, returns "xxx"</span>
+
+        <span class="keyword">if</span> (StringUtils.hasText(jwt)          <span class="comment">// 1. Token exists</span>
+            && jwtService.validateToken(jwt)   <span class="comment">// 2. Signature valid, not expired</span>
+            && jwtService.isAccessToken(jwt)   <span class="comment">// 3. It's an access token (not MFA)</span>
+            && !tokenBlacklistService.isBlacklisted(jwtService.getJtiFromToken(jwt)))
+            <span class="comment">// 4. Not in Redis blacklist (not logged out)</span>
+        {
+            String email = jwtService.getEmailFromToken(jwt);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+            <span class="comment">// Loads user + roles from DB</span>
+
+            UsernamePasswordAuthenticationToken authentication =
+                <span class="keyword">new</span> UsernamePasswordAuthenticationToken(
+                    userDetails, <span class="keyword">null</span>, userDetails.getAuthorities());
+            <span class="comment">// Creates an Authentication object with user's roles</span>
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            <span class="comment">// Sets the current user in Spring Security's context</span>
+            <span class="comment">// Now @AuthenticationPrincipal works in controllers</span>
+            <span class="comment">// And @PreAuthorize("hasRole('ADMIN')") can check roles</span>
+        }
+
+        filterChain.doFilter(request, response);
+        <span class="comment">// ALWAYS continue the filter chain — even if auth failed</span>
+        <span class="comment">// (Spring Security handles 401 via exceptionHandling config)</span>
+    }
+}</code></pre>
+    </div>
+
+    <h3>SecurityConfig.java - Access Control Rules</h3>
+    <div class="card">
+        <pre><code><span class="comment">// PUBLIC endpoints (no token needed):</span>
+.requestMatchers(
+    <span class="string">"/api/auth/register"</span>,      <span class="comment">// Create account</span>
+    <span class="string">"/api/auth/login"</span>,         <span class="comment">// Get tokens</span>
+    <span class="string">"/api/auth/refresh"</span>,       <span class="comment">// Refresh access token</span>
+    <span class="string">"/api/auth/verify-email"</span>,  <span class="comment">// Confirm email</span>
+    <span class="string">"/api/auth/forgot-password"</span>,
+    <span class="string">"/api/auth/reset-password"</span>,
+    <span class="string">"/api/auth/mfa/verify"</span>,
+    <span class="string">"/api/auth/mfa/recovery"</span>
+).permitAll()
+.requestMatchers(HttpMethod.GET, <span class="string">"/api/products"</span>).permitAll()   <span class="comment">// Browse products</span>
+.requestMatchers(HttpMethod.GET, <span class="string">"/api/flash-sales/**"</span>).permitAll() <span class="comment">// View sales</span>
+
+<span class="comment">// ADMIN only:</span>
+.requestMatchers(<span class="string">"/api/admin/**"</span>).hasRole(<span class="string">"ADMIN"</span>)
+
+<span class="comment">// AUTHENTICATED (any logged-in user):</span>
+.anyRequest().authenticated()  <span class="comment">// Everything else needs a valid JWT</span>
+
+<span class="comment">// Password encoder:</span>
+<span class="keyword">new</span> BCryptPasswordEncoder(12)  <span class="comment">// Strength 12 = 2^12 = 4096 hash rounds</span>
+<span class="comment">// Higher = slower brute-force attacks, but also slower logins (~250ms)</span></code></pre>
+    </div>
+
+    <h3>application.yml - Configuration Explained</h3>
+    <div class="card">
+        <pre><code><span class="comment"># DATABASE</span>
+datasource:
+  url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:6000}/authdb
+  <span class="comment"># ${VAR:default} syntax: use env var if set, otherwise use default</span>
+  <span class="comment"># Connects to PostgreSQL on port 6000, database named "authdb"</span>
+
+  hikari:
+    maximum-pool-size: 10   <span class="comment"># Max 10 threads can query DB at once</span>
+    minimum-idle: 5         <span class="comment"># 5 connections pre-warmed (no startup delay)</span>
+    connection-timeout: 30000  <span class="comment"># 30s - if pool is full, wait up to 30s</span>
+    max-lifetime: 1800000   <span class="comment"># 30min - recycle before DB's own timeout kills it</span>
+    leak-detection-threshold: 60000  <span class="comment"># Warn if code holds connection > 60s</span>
+    <span class="comment"># This catches bugs like: forgot to close transaction, infinite loop in service</span>
+
+<span class="comment"># JPA / HIBERNATE</span>
+jpa:
+  hibernate:
+    ddl-auto: update    <span class="comment"># Auto-create/alter tables to match entities</span>
+    <span class="comment"># WARNING: in production use "validate" + Flyway migrations</span>
+  open-in-view: false   <span class="comment"># IMPORTANT: prevents lazy loading in controllers</span>
+    <span class="comment"># If true: DB connection held for entire HTTP request (wasteful)</span>
+    <span class="comment"># If false: must eagerly fetch all data in service layer</span>
+
+<span class="comment"># REDIS (for JWT blacklisting)</span>
+data:
+  redis:
+    lettuce:
+      pool:
+        max-active: 10   <span class="comment"># Only 10 connections to Redis at once</span>
+        min-idle: 2      <span class="comment"># 2 always warm (blacklist checks are frequent)</span>
+        max-wait: 2000ms <span class="comment"># Fail fast if Redis is overloaded</span>
+
+<span class="comment"># JWT CONFIG</span>
+app:
+  jwt:
+    access-token-expiration-ms: 900000  <span class="comment"># 15min - short-lived for security</span>
+    refresh-token-expiration-days: 7    <span class="comment"># 7 days - long-lived, stored in DB</span>
+    <span class="comment"># Why short access tokens? If stolen, attacker has max 15min window</span>
+    <span class="comment"># Refresh tokens are in HttpOnly cookies (can't be stolen by XSS)</span></code></pre>
+    </div>
+
+    <!-- SUMMARY -->
+    <h2>Summary: How Everything Connects</h2>
+    <div class="card">
+        <div class="flow-diagram">
+USER JOURNEY (placing a normal order):
+
+1. REGISTER: POST /api/auth/register
+   -> Password hashed (BCrypt), saved to 'users' table
+   -> Verification email sent ASYNC (doesn't block response)
+
+2. VERIFY: GET /api/auth/verify-email?token=xxx
+   -> Token looked up in 'email_verification_tokens'
+   -> User marked as verified
+
+3. LOGIN: POST /api/auth/login
+   -> Credentials checked, JWT access token generated
+   -> Refresh token hashed and stored in 'refresh_tokens'
+   -> Access token returned, refresh token in HttpOnly cookie
+
+4. BROWSE: GET /api/products (public, no auth needed)
+   -> Returns product list from 'products' table
+
+5. ORDER: POST /api/orders (requires auth)
+   -> JwtAuthenticationFilter validates token on EVERY request
+   -> Checks Redis blacklist (is token revoked?)
+   -> OrderService uses OptimisticPurchaseStrategy
+   -> Decrements stock (with @Version conflict detection)
+   -> Saves order to 'orders' + 'order_items'
+   -> Publishes OrderPlacedEvent
+   -> Returns 200 OK immediately
+
+6. ASYNC (in orderExecutor thread, user doesn't wait):
+   -> OrderEventListener receives event
+   -> InvoiceService generates invoice
+   -> Saved to 'invoices' table
+
+7. NIGHTLY (in batchExecutor thread, midnight UTC):
+   -> DailySalesJob triggers
+   -> Processes yesterday's orders in 500-row chunks
+   -> Saves aggregate to 'daily_sales_reports'
+
+8. CLEANUP (every hour):
+   -> TokenCleanupScheduler deletes expired/revoked refresh tokens
+   -> Keeps 'refresh_tokens' table clean</div>
+    </div>
+
+</div>
+</body>
+</html>
