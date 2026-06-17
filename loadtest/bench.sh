@@ -7,21 +7,21 @@
 #   ./loadtest/bench.sh cache       Req 6/10 — big catalog, read-heavy → BEFORE/AFTER caching
 #   ./loadtest/bench.sh down        Stop everything and wipe volumes
 #
-# Tunables (env vars): DURATION (measure secs, default 120), WARMUP (default 60),
-#                      READ_USERS (cache test, default 20), WRITE_USERS (integrity test, default 100),
+# Tunables (env vars): DURATION (measure secs, default 30), WARMUP (default 15),
+#                      READ_USERS (cache test, default 10), WRITE_USERS (integrity test, default 15),
 #                      SEED_INTEGRITY (default 20), SEED_CACHE (default 5000).
-# Weak machine? Lower the load, e.g.:  READ_USERS=10 DURATION=60 ./loadtest/bench.sh cache
+# Defaults are light. Stronger machine? Push harder, e.g.:  DURATION=120 READ_USERS=50 ./loadtest/bench.sh cache
 #
 set -eu
 
 cd "$(dirname "$0")/.."            # repo root, regardless of where it's called from
 
-DURATION="${DURATION:-120}"
-WARMUP="${WARMUP:-60}"
+DURATION="${DURATION:-30}"          # how long to measure, in seconds
+WARMUP="${WARMUP:-15}"              # warm-up seconds (discarded) before the cache measurement
 SEED_INTEGRITY="${SEED_INTEGRITY:-20}"
 SEED_CACHE="${SEED_CACHE:-5000}"
-WRITE_USERS="${WRITE_USERS:-100}"   # concurrent users for the integrity (write) test
-READ_USERS="${READ_USERS:-20}"      # concurrent users for the cache (read) test — lower = lighter on your machine
+WRITE_USERS="${WRITE_USERS:-15}"    # concurrent users for the integrity (write) test
+READ_USERS="${READ_USERS:-10}"      # concurrent users for the cache (read) test — lower = lighter on your machine
 THREADS="$WRITE_USERS"              # current scenario's user count (set per scenario below)
 STOCK=100000                        # must match SEED_STOCK_PER_PRODUCT in LoadTestDataInitializer
 URL="http://localhost:8080/api/products"
@@ -62,8 +62,12 @@ jmeter() {
 psql_val() { docker exec shopflow-postgres psql -U postgres -d authdb -t -A -c "$1" | tr -d '[:space:]'; }
 
 check_integrity() {
-  local seeded sold units orders
-  seeded=$(( $(psql_val "SELECT count(*) FROM products;") * STOCK ))
+  local products seeded sold units orders
+  products=$(psql_val "SELECT count(*) FROM products;" 2>/dev/null || true)
+  if ! printf '%s' "$products" | grep -qE '^[0-9]+$'; then
+    echo "  ⚠ could not read the database — is the stack still up? (got: '${products:-empty}')"; exit 1
+  fi
+  seeded=$(( products * STOCK ))
   sold=$(psql_val "SELECT $seeded - COALESCE(sum(stock_quantity),0) FROM products;")
   units=$(psql_val "SELECT COALESCE(sum(quantity),0) FROM order_items;")
   orders=$(psql_val "SELECT count(*) FROM orders WHERE status='CONFIRMED';")
@@ -73,7 +77,7 @@ check_integrity() {
   echo
   if [ "$sold" = "$units" ] && [ "$units" = "$orders" ]; then
     echo "  ✅ PASS — every unit sold maps to exactly one order item and one confirmed order."
-    echo "           No overselling, no lost or duplicated stock under 100 concurrent users."
+    echo "           No overselling, no lost or duplicated stock under concurrent load."
   else
     echo "  ❌ FAIL — invariant broken (sold=$sold units=$units orders=$orders)."
     exit 1

@@ -421,7 +421,7 @@ Each command resets the stack, seeds the right catalog, runs the test, and print
 - **`integrity`** → a PASS/FAIL invariant check (`stock sold == units sold == confirmed orders`).
 - **`cache`** → a before/after latency table (cache off vs cache on).
 
-Raw results land in `loadtest/results/*.jtl`. Tunables: `DURATION` (measure seconds, default 120), `WARMUP` (default 60), `READ_USERS` (cache test, default 20), `WRITE_USERS` (integrity test, default 100), `SEED_INTEGRITY` (default 20), `SEED_CACHE` (default 5000). On a weak machine, lower the load — e.g. `READ_USERS=10 DURATION=60 ./loadtest/bench.sh cache`.
+Raw results land in `loadtest/results/*.jtl`. Defaults are light (~1,200–1,500 requests per run). Tunables: `DURATION` (measure seconds, default 30), `WARMUP` (default 15), `READ_USERS` (cache test, default 10), `WRITE_USERS` (integrity test, default 15), `SEED_INTEGRITY` (default 20), `SEED_CACHE` (default 5000). On a stronger machine, push harder — e.g. `DURATION=120 READ_USERS=50 ./loadtest/bench.sh cache`.
 
 📄 Full walkthrough, methodology, and measured numbers: **[REQ_6_9_10_GUIDE.md](REQ_6_9_10_GUIDE.md)**.
 

@@ -17,8 +17,8 @@
 
 Each command sets everything up, runs the test, and prints the result. Nothing else to do.
 
-The read test uses 20 users by default. On a weak machine, lower it:
-`READ_USERS=10 DURATION=60 ./loadtest/bench.sh cache`
+Defaults are light (~1,200–1,500 requests per run). Lower further if needed:
+`READ_USERS=5 DURATION=20 ./loadtest/bench.sh cache`
 
 > Auth is turned off only under the `loadtest` profile (the script handles this), so the test
 > measures performance, not login. A normal `docker compose up` keeps auth on.
