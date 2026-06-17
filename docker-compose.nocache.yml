@@ -1,0 +1,10 @@
+# Caching-OFF override for the "before" benchmark pass (Req 10).
+# Stack on top of the loadtest override. Setting spring.cache.type=none makes the CacheConfig
+# bean back off (Spring uses a NoOpCacheManager), so @Cacheable becomes a pass-through and every
+# read hits Postgres. Same image as the "after" run — only this config differs.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.loadtest.yml -f docker-compose.nocache.yml up -d --scale app=2
+services:
+  app:
+    environment:
+      SPRING_CACHE_TYPE: none

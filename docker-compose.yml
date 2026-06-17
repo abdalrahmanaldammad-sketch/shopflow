@@ -59,6 +59,10 @@ services:
     image: shopflow:latest
     restart: unless-stopped
     environment:
+      # Req 9/10 — set SPRING_PROFILES_ACTIVE=loadtest to seed demo data + open order endpoints.
+      # Set SPRING_CACHE_TYPE=none for the "before" (no-cache) benchmark run.
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-}
+      SPRING_CACHE_TYPE: ${SPRING_CACHE_TYPE:-redis}
       DB_HOST: postgres
       DB_PORT: 5432
       DB_USERNAME: ${DB_USERNAME:-postgres}
@@ -133,6 +137,24 @@ services:
       - grafana-data:/var/lib/grafana
     depends_on:
       - prometheus
+    networks:
+      - shopflow-network
+
+  # ─────────────────────────────────────────────
+  # JMeter — stress test runner (Req 9 / Req 10)
+  # Gated behind the 'tools' compose profile so it does NOT start on a normal
+  # `docker compose up`. Run it on demand with:
+  #   docker compose run --rm jmeter -n -t /test/shopflow.jmx \
+  #     -Jhost=nginx -Jport=80 -Jduration=120 \
+  #     -l /test/results/after.jtl -e -o /test/results/after
+  # Output lands in ./loadtest/results/ on the host.
+  # ─────────────────────────────────────────────
+  jmeter:
+    image: justb2b/jmeter:latest
+    container_name: shopflow-jmeter
+    profiles: ["tools"]
+    volumes:
+      - ./loadtest:/test
     networks:
       - shopflow-network
 

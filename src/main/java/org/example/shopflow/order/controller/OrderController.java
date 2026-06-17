@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
@@ -27,7 +29,9 @@ public class OrderController {
             @AuthenticationPrincipal UserPrincipal principal,
             @Valid @RequestBody PlaceOrderRequest request) {
 
-        Order order = orderService.placeOrder(principal.getId(), request);
+        // principal is null under the 'loadtest' profile (auth disabled) → service uses the demo user
+        UUID userId = principal != null ? principal.getId() : null;
+        Order order = orderService.placeOrder(userId, request);
         OrderResponse response = OrderResponse.from(order);
         response.setMessage("Order placed. Invoice is being generated in the background.");
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -40,8 +44,9 @@ public class OrderController {
             @AuthenticationPrincipal UserPrincipal principal,
             @Valid @RequestBody FlashSaleOrderRequest request) {
 
+        UUID userId = principal != null ? principal.getId() : null;
         Order order = orderService.placeFlashSaleOrder(
-                principal.getId(), request.getFlashSaleId(), request.getQuantity());
+                userId, request.getFlashSaleId(), request.getQuantity());
         OrderResponse response = OrderResponse.from(order);
         response.setMessage("Flash sale order placed. Invoice is being generated in the background.");
         return ResponseEntity.status(HttpStatus.CREATED)

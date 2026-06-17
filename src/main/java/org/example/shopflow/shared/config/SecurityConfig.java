@@ -10,6 +10,8 @@ import org.example.shopflow.auth.security.RestAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -38,6 +40,7 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2AuthenticationSuccessHandler oAuth2SuccessHandler;
     private final OAuth2AuthenticationFailureHandler oAuth2FailureHandler;
+    private final Environment environment;
 
     @Bean
     @Order(1)
@@ -69,25 +72,35 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exceptions ->
                         exceptions.authenticationEntryPoint(restAuthenticationEntryPoint))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/auth/register",
-                                "/api/auth/login",
-                                "/api/auth/refresh",
-                                "/api/auth/verify-email",
-                                "/api/auth/forgot-password",
-                                "/api/auth/reset-password",
-                                "/api/auth/resend-verification",
-                                "/api/auth/mfa/verify",
-                                "/api/auth/mfa/recovery"
-                        ).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
-                        .requestMatchers("/actuator/prometheus", "/actuator/health").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/flash-sales/**").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .anyRequest().authenticated()
-                )
+                .authorizeHttpRequests(auth -> {
+                    auth
+                            .requestMatchers(
+                                    "/api/auth/register",
+                                    "/api/auth/login",
+                                    "/api/auth/refresh",
+                                    "/api/auth/verify-email",
+                                    "/api/auth/forgot-password",
+                                    "/api/auth/reset-password",
+                                    "/api/auth/resend-verification",
+                                    "/api/auth/mfa/verify",
+                                    "/api/auth/mfa/recovery"
+                            ).permitAll()
+                            .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
+                            .requestMatchers("/actuator/prometheus", "/actuator/health").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/**").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/api/flash-sales/**").permitAll();
+
+                    // 'loadtest' profile only: open the order endpoints so the stress test (Req 9)
+                    // can exercise the concurrency/ACID engineering without auth noise.
+                    // The default profile keeps these authenticated.
+                    if (environment.acceptsProfiles(Profiles.of("loadtest"))) {
+                        auth.requestMatchers("/api/orders/**").permitAll();
+                    }
+
+                    auth
+                            .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                            .anyRequest().authenticated();
+                })
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

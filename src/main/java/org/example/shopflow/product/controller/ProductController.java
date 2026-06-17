@@ -24,15 +24,12 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<ProductResponse>>> getAll() {
-        List<ProductResponse> products = productService.findAll()
-                .stream().map(ProductResponse::from).toList();
-        return ResponseEntity.ok(ApiResponse.success("Products fetched", products));
+        return ResponseEntity.ok(ApiResponse.success("Products fetched", productService.findAll()));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductResponse>> getById(@PathVariable UUID id) {
-        return ResponseEntity.ok(ApiResponse.success("Product fetched",
-                ProductResponse.from(productService.findById(id))));
+        return ResponseEntity.ok(ApiResponse.success("Product fetched", productService.findById(id)));
     }
 
     @PostMapping

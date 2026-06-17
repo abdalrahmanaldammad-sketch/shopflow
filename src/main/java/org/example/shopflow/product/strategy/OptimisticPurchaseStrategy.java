@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.shopflow.product.entity.Product;
 import org.example.shopflow.product.repository.ProductRepository;
+import org.example.shopflow.shared.config.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,8 +25,11 @@ public class OptimisticPurchaseStrategy implements PurchaseStrategy {
 
     private final ProductRepository productRepository;
 
+    // Req 6 — stock changed, so the cached catalog is now stale → evict it.
+    // allEntries because both the 'all' list and the per-id entry hold this product's stock.
     @Override
     @Transactional
+    @CacheEvict(value = CacheConfig.PRODUCTS_CACHE, allEntries = true)
     public Product purchase(UUID productId, int quantity) {
         int attempt = 0;
         while (attempt < MAX_RETRIES) {
@@ -48,6 +53,7 @@ public class OptimisticPurchaseStrategy implements PurchaseStrategy {
         if (product.getStockQuantity() < quantity) {
             throw new RuntimeException("Insufficient stock. Available: " + product.getStockQuantity());
         }
+
 
         product.setStockQuantity(product.getStockQuantity() - quantity);
         return productRepository.save(product);

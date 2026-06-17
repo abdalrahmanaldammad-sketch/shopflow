@@ -60,7 +60,6 @@ public class DailySalesReportService {
                         OrderStatus.CONFIRMED, from, to,
                         PageRequest.of(page, CHUNK_SIZE)
                 );
-
                 List<Order> orders = chunk.getContent();
                 totalOrders += orders.size();
                 for (Order order : orders) {

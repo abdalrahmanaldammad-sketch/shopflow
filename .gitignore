@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Load test output (keep the plan + docs, ignore generated results) ###
+loadtest/results/

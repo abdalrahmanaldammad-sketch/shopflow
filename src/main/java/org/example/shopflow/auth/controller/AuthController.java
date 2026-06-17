@@ -40,6 +40,7 @@ public class AuthController {
                 .body(ApiResponse.success("Registration successful. Please check your email to verify your account."));
     }
 
+
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponse>> login(
             @Valid @RequestBody LoginRequest request,

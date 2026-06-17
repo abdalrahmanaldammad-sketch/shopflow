@@ -1,0 +1,15 @@
+# Load-test override (Req 9 / Req 10).
+# Layer on top of the base file so the DEFAULT `docker compose up` stays production-like
+# (auth on, no seeded demo data). This override turns on the 'loadtest' Spring profile,
+# which seeds the demo user + products and opens the order endpoints.
+#
+# AFTER run (caching ON — Req 6 active):
+#   docker compose -f docker-compose.yml -f docker-compose.loadtest.yml up -d --scale app=2
+#
+# BEFORE run (caching OFF — stack the nocache override too):
+#   docker compose -f docker-compose.yml -f docker-compose.loadtest.yml -f docker-compose.nocache.yml up -d --scale app=2
+services:
+  app:
+    environment:
+      SPRING_PROFILES_ACTIVE: loadtest
+      SPRING_CACHE_TYPE: redis

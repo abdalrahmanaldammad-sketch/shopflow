@@ -27,17 +27,32 @@ import java.util.UUID;
 @Slf4j
 public class OrderService {
 
+    // Seeded by LoadTestDataInitializer under the 'loadtest' profile — orders placed
+    // without an authenticated principal (auth disabled for the engineering demo) run as this user.
+    private static final String DEMO_USER_EMAIL = "loadtest@shopflow.dev";
+
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final OptimisticPurchaseStrategy optimisticStrategy;
     private final PessimisticPurchaseStrategy pessimisticStrategy;
     private final ApplicationEventPublisher eventPublisher;
 
+    // Resolves the order owner. When userId is null (no principal — auth-free demo path),
+    // falls back to the seeded demo user so the order flow stays intact.
+    private User resolveUser(UUID userId) {
+        if (userId != null) {
+            return userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+        }
+        return userRepository.findByEmail(DEMO_USER_EMAIL)
+                .orElseThrow(() -> new RuntimeException(
+                        "No principal and demo user not seeded — run with the 'loadtest' profile"));
+    }
+
     // Normal purchase — uses Optimistic Locking (Req 1)
     @Transactional
     public Order placeOrder(UUID userId, PlaceOrderRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = resolveUser(userId);
 
         List<OrderItem> items = new ArrayList<>();
         BigDecimal total = BigDecimal.ZERO;
@@ -81,8 +96,7 @@ public class OrderService {
     // Flash sale purchase — uses Pessimistic Locking (Req 1)
     @Transactional
     public Order placeFlashSaleOrder(UUID userId, UUID flashSaleId, int quantity) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = resolveUser(userId);
 
         // Strategy Pattern: same interface, different locking behavior
         Product product = pessimisticStrategy.purchase(flashSaleId, quantity);
