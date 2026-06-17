@@ -7,17 +7,20 @@
 #   ./loadtest/bench.sh cache       Req 6/10 — big catalog, read-heavy → BEFORE/AFTER caching
 #   ./loadtest/bench.sh down        Stop everything and wipe volumes
 #
-# Tunables (env vars): DURATION (measure secs, default 30), WARMUP (default 15),
+# Each user sends a FIXED number of requests, then the test stops (total = users × LOOPS).
+# Tunables (env vars): LOOPS (requests per user, default 80), WARMUP_LOOPS (default 30),
 #                      READ_USERS (cache test, default 10), WRITE_USERS (integrity test, default 15),
 #                      SEED_INTEGRITY (default 20), SEED_CACHE (default 5000).
-# Defaults are light. Stronger machine? Push harder, e.g.:  DURATION=120 READ_USERS=50 ./loadtest/bench.sh cache
+# Lighter:  LOOPS=40 READ_USERS=5 ./loadtest/bench.sh cache       (= 200 requests per pass)
+# Heavier:  LOOPS=200 READ_USERS=50 ./loadtest/bench.sh cache     (= 10000 requests per pass)
 #
 set -eu
 
 cd "$(dirname "$0")/.."            # repo root, regardless of where it's called from
 
-DURATION="${DURATION:-30}"          # how long to measure, in seconds
-WARMUP="${WARMUP:-15}"              # warm-up seconds (discarded) before the cache measurement
+LOOPS="${LOOPS:-80}"               # requests PER USER in the measured run (total = users × loops)
+WARMUP_LOOPS="${WARMUP_LOOPS:-30}" # requests per user in the warm-up (discarded)
+RAMPUP="${RAMPUP:-5}"              # seconds to start all users over; 0 = all fire at once (burst)
 SEED_INTEGRITY="${SEED_INTEGRITY:-20}"
 SEED_CACHE="${SEED_CACHE:-5000}"
 WRITE_USERS="${WRITE_USERS:-15}"    # concurrent users for the integrity (write) test
@@ -48,13 +51,14 @@ wait_ready() {
   echo "!! ERROR: app did not become ready"; $DC logs --tail 40 app; exit 1
 }
 
-# jmeter <plan> <duration> [out-name]   (no out-name = throwaway warm-up)
+# jmeter <plan> <loops> [out-name]   (no out-name = throwaway warm-up)
+# Each user sends exactly <loops> requests, then the test stops.
 jmeter() {
   if [ "${3:-}" = "" ]; then
-    $DC run --rm jmeter -n -t "/test/$1" -Jhost=nginx -Jport=80 -Jthreads="$THREADS" -Jduration="$2" 2>&1 | grep -E '^summary =' | tail -1
+    $DC run --rm jmeter -n -t "/test/$1" -Jhost=nginx -Jport=80 -Jthreads="$THREADS" -Jrampup="$RAMPUP" -Jloops="$2" 2>&1 | grep -E '^summary =' | tail -1
   else
     rm -f "loadtest/results/$3.jtl"
-    $DC run --rm jmeter -n -t "/test/$1" -Jhost=nginx -Jport=80 -Jthreads="$THREADS" -Jduration="$2" \
+    $DC run --rm jmeter -n -t "/test/$1" -Jhost=nginx -Jport=80 -Jthreads="$THREADS" -Jrampup="$RAMPUP" -Jloops="$2" \
        -l "/test/results/$3.jtl" 2>&1 | grep -E '^summary =' | tail -1
   fi
 }
@@ -89,12 +93,12 @@ cmd_build() { banner "BUILD"; ./mvnw -q clean compile jib:dockerBuild && echo ">
 cmd_integrity() {
   export LOADTEST_SEED_PRODUCTS="$SEED_INTEGRITY"
   THREADS="$WRITE_USERS"
-  banner "DATA-INTEGRITY (Req 9) — $SEED_INTEGRITY products · $WRITE_USERS users · writes only · ${DURATION}s"
+  banner "DATA-INTEGRITY (Req 9) — $SEED_INTEGRITY products · writes only · $WRITE_USERS users × $LOOPS = $((WRITE_USERS*LOOPS)) requests"
   reset
   up "$BASE"
   wait_ready "$SEED_INTEGRITY"
   echo ">> stress run (writes only)…"
-  jmeter shopflow-writeonly.jmx "$DURATION" integrity
+  jmeter shopflow-writeonly.jmx "$LOOPS" integrity
   banner "RESULT — Req 9 data integrity"
   check_integrity
   echo; echo "  Raw results: loadtest/results/integrity.jtl"
@@ -103,18 +107,18 @@ cmd_integrity() {
 cmd_cache() {
   export LOADTEST_SEED_PRODUCTS="$SEED_CACHE"
   THREADS="$READ_USERS"
-  banner "CACHE BENCHMARK (Req 6/10) — $SEED_CACHE products · $READ_USERS users · reads only · warm-up ${WARMUP}s · measure ${DURATION}s"
+  banner "CACHE BENCHMARK (Req 6/10) — $SEED_CACHE products · reads only · $READ_USERS users × $LOOPS = $((READ_USERS*LOOPS)) requests per pass"
   reset
   echo "── BEFORE: cache OFF ──────────────────────────────────────"
   up "$NOCACHE"
   wait_ready "$SEED_CACHE"
-  echo ">> warm-up…";  jmeter shopflow-readonly.jmx "$WARMUP"
-  echo ">> measure…";  jmeter shopflow-readonly.jmx "$DURATION" big_before
+  echo ">> warm-up…";  jmeter shopflow-readonly.jmx "$WARMUP_LOOPS"
+  echo ">> measure…";  jmeter shopflow-readonly.jmx "$LOOPS" big_before
   echo "── AFTER: cache ON (same DB, just flip the flag) ──────────"
   up "$BASE"
   wait_ready "$SEED_CACHE"
-  echo ">> warm-up…";  jmeter shopflow-readonly.jmx "$WARMUP"
-  echo ">> measure…";  jmeter shopflow-readonly.jmx "$DURATION" big_after
+  echo ">> warm-up…";  jmeter shopflow-readonly.jmx "$WARMUP_LOOPS"
+  echo ">> measure…";  jmeter shopflow-readonly.jmx "$LOOPS" big_after
   banner "RESULT — Req 6/10 caching before vs after"
   python3 loadtest/analyze.py big_before big_after
   echo "  Raw results: loadtest/results/big_before.jtl  vs  big_after.jtl"
