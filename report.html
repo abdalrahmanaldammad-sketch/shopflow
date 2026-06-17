@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>ShopFlow - Project Report</title>
+<style>
+  @page { size: A4; margin: 2.5cm; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Times New Roman", serif;
+    font-size: 12pt;
+    line-height: 1.8;
+    color: #1a1a1a;
+    background: #fff;
+    max-width: 210mm;
+    margin: 0 auto;
+    padding: 2.5cm;
+  }
+
+  /* Cover page */
+  .cover {
+    text-align: center;
+    page-break-after: always;
+    padding-top: 4cm;
+  }
+  .cover .university { font-size: 16pt; font-weight: bold; margin-bottom: 0.5cm; }
+  .cover .dept { font-size: 13pt; margin-bottom: 2cm; color: #333; }
+  .cover .title { font-size: 20pt; font-weight: bold; margin-bottom: 0.5cm; border-top: 2pt solid #1a1a1a; border-bottom: 2pt solid #1a1a1a; padding: 0.5cm 0; }
+  .cover .subtitle { font-size: 14pt; color: #333; margin-bottom: 2.5cm; }
+  .cover .info { font-size: 12pt; line-height: 2.2; }
+  .cover .info strong { display: inline-block; min-width: 120px; }
+
+  /* TOC */
+  .toc { page-break-after: always; }
+  .toc h2 { font-size: 16pt; text-align: center; margin-bottom: 1cm; border-bottom: 1pt solid #999; padding-bottom: 0.3cm; }
+  .toc-entry { display: flex; justify-content: space-between; padding: 4pt 0; border-bottom: 1pt dotted #ccc; font-size: 11pt; }
+  .toc-entry.main { font-weight: bold; font-size: 12pt; margin-top: 8pt; }
+
+  /* Section headings */
+  h1 { font-size: 18pt; text-align: center; margin: 1cm 0 0.5cm; padding-bottom: 0.3cm; border-bottom: 2pt solid #1a1a1a; page-break-before: always; }
+  h1:first-of-type { page-break-before: avoid; }
+  h2 { font-size: 14pt; margin: 0.8cm 0 0.4cm; padding-bottom: 0.2cm; border-bottom: 0.5pt solid #999; }
+  h3 { font-size: 12pt; font-weight: bold; margin: 0.5cm 0 0.3cm; }
+
+  p { text-align: justify; margin-bottom: 0.4cm; text-indent: 1cm; }
+  p.no-indent { text-indent: 0; }
+
+  /* Code blocks */
+  pre {
+    direction: ltr;
+    text-align: left;
+    background: #f5f5f5;
+    border: 0.5pt solid #ddd;
+    border-right: 3pt solid #999;
+    padding: 10pt 12pt;
+    margin: 0.4cm 0 0.6cm;
+    font-family: "Courier New", monospace;
+    font-size: 9pt;
+    line-height: 1.5;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    page-break-inside: avoid;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.4cm 0 0.6cm;
+    font-size: 10pt;
+    page-break-inside: avoid;
+  }
+  th, td {
+    border: 0.5pt solid #666;
+    padding: 6pt 8pt;
+    text-align: right;
+  }
+  th { background: #e8e8e8; font-weight: bold; }
+  tr:nth-child(even) { background: #fafafa; }
+
+  /* File path references */
+  .filepath {
+    direction: ltr;
+    text-align: left;
+    font-family: "Courier New", monospace;
+    font-size: 9pt;
+    color: #555;
+    background: #f0f0f0;
+    padding: 2pt 6pt;
+    display: inline-block;
+    margin: 2pt 0;
+  }
+
+  /* Bullet lists */
+  ul, ol { margin: 0.3cm 1cm 0.5cm 0; padding-right: 1cm; }
+  li { margin-bottom: 4pt; text-align: justify; }
+
+  /* Diagram boxes */
+  .diagram {
+    direction: ltr;
+    text-align: center;
+    background: #fafafa;
+    border: 0.5pt solid #ccc;
+    padding: 15pt;
+    margin: 0.5cm auto;
+    font-family: "Courier New", monospace;
+    font-size: 9.5pt;
+    line-height: 1.4;
+    white-space: pre;
+    page-break-inside: avoid;
+  }
+
+  .note {
+    background: #f9f9f2;
+    border-right: 3pt solid #c0a030;
+    padding: 8pt 12pt;
+    margin: 0.4cm 0;
+    font-size: 11pt;
+  }
+  .note strong { display: block; margin-bottom: 3pt; }
+
+  /* Screenshot figures */
+  .screenshot {
+    text-align: center;
+    margin: 0.6cm 0;
+    page-break-inside: avoid;
+  }
+  .screenshot img {
+    max-width: 100%;
+    border: 0.5pt solid #999;
+    box-shadow: 0 1pt 4pt rgba(0,0,0,0.15);
+  }
+  .screenshot .caption {
+    font-size: 10pt;
+    color: #444;
+    margin-top: 6pt;
+    font-style: italic;
+  }
+  .screenshots-section {
+    margin-top: 0.8cm;
+    padding-top: 0.4cm;
+    border-top: 0.5pt dashed #ccc;
+  }
+  .screenshots-section h3 {
+    color: #333;
+    margin-bottom: 0.4cm;
+  }
+
+  footer {
+    text-align: center;
+    font-size: 9pt;
+    color: #999;
+    margin-top: 2cm;
+    border-top: 0.5pt solid #ccc;
+    padding-top: 0.3cm;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!--                        COVER PAGE                             -->
+<!-- ============================================================ -->
+<div class="cover">
+  <div class="university">جامعة دمشق</div>
+  <div class="dept">كلية الهندسة المعلوماتية &mdash; قسم هندسة البرمجيات</div>
+  <div style="margin: 1.5cm 0;">
+    <div class="title">تقرير مشروع مادة البرمجة المتوازية</div>
+    <div class="subtitle">الفصل الدراسي 2026</div>
+  </div>
+  <div style="font-size: 15pt; font-weight: bold; margin-bottom: 1cm;">
+    محرك المعالجة عالي الأداء لنظام التجارة الإلكترونية
+    <br>
+    <span style="font-size: 12pt; font-weight: normal; color: #555;">(High-Performance E-Commerce Backend Engine)</span>
+  </div>
+  <div style="font-size: 14pt; font-weight: bold; margin-bottom: 0.5cm;">ShopFlow</div>
+  <div style="margin: 1.5cm 0;">
+    <div class="info">
+      <strong>التقنيات المستخدمة:</strong> Spring Boot 3.4.3 &bull; Java 17 &bull; PostgreSQL &bull; Redis &bull; Nginx &bull; Docker Compose &bull; Prometheus &bull; Grafana
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--                     TABLE OF CONTENTS                         -->
+<!-- ============================================================ -->
+<div class="toc">
+  <h2>فهرس المحتويات</h2>
+  <div class="toc-entry main"><span>1. مقدمة</span></div>
+  <div class="toc-entry main"><span>2. المتطلب الأول &mdash; حماية البيانات المشتركة من التضارب</span></div>
+  <div class="toc-entry"><span>&emsp;2.1 القفل المتفائل (Optimistic Locking)</span></div>
+  <div class="toc-entry"><span>&emsp;2.2 القفل المتشائم (Pessimistic Locking)</span></div>
+  <div class="toc-entry"><span>&emsp;2.3 نمط الاستراتيجية (Strategy Pattern)</span></div>
+  <div class="toc-entry main"><span>3. المتطلب الثاني &mdash; إدارة الموارد الحاسوبية</span></div>
+  <div class="toc-entry"><span>&emsp;3.1 إدارة اتصالات قاعدة البيانات (HikariCP)</span></div>
+  <div class="toc-entry"><span>&emsp;3.2 إدارة اتصالات Redis (Lettuce Pool)</span></div>
+  <div class="toc-entry"><span>&emsp;3.3 إدارة مجمعات الخيوط (Thread Pool Executors)</span></div>
+  <div class="toc-entry main"><span>4. المتطلب الثالث &mdash; المعالجة غير المتزامنة</span></div>
+  <div class="toc-entry"><span>&emsp;4.1 نمط الحدث/المستمع (Event/Listener Pattern)</span></div>
+  <div class="toc-entry"><span>&emsp;4.2 إرسال البريد الإلكتروني بشكل غير متزامن</span></div>
+  <div class="toc-entry"><span>&emsp;4.3 إبطال الرموز عبر Redis</span></div>
+  <div class="toc-entry main"><span>5. المتطلب الرابع &mdash; معالجة البيانات الضخمة على دفعات</span></div>
+  <div class="toc-entry"><span>&emsp;5.1 المهمة المجدولة (Scheduled Job)</span></div>
+  <div class="toc-entry"><span>&emsp;5.2 المعالجة على شكل دفعات (Chunk Processing)</span></div>
+  <div class="toc-entry main"><span>6. المتطلب الخامس &mdash; توزيع الأحمال</span></div>
+  <div class="toc-entry"><span>&emsp;6.1 البنية التحتية (Docker Compose + Nginx)</span></div>
+  <div class="toc-entry"><span>&emsp;6.2 استراتيجية التوزيع (Round-Robin via DNS)</span></div>
+  <div class="toc-entry"><span>&emsp;6.3 تسجيل الطلبات عبر AOP</span></div>
+  <div class="toc-entry"><span>&emsp;6.4 المراقبة باستخدام Prometheus و Grafana</span></div>
+  <div class="toc-entry main"><span>7. اختبار الضغط &mdash; سلامة البيانات تحت التزامن العالي</span></div>
+  <div class="toc-entry main"><span>8. التخزين المؤقت والقياس المرجعي وتحليل عنق الزجاجة</span></div>
+  <div class="toc-entry"><span>&emsp;8.1 فكرة التخزين المؤقت في Redis</span></div>
+  <div class="toc-entry"><span>&emsp;8.2 تصميم تجربة القياس (قبل / بعد)</span></div>
+  <div class="toc-entry"><span>&emsp;8.3 النتائج وتحليل عنق الزجاجة</span></div>
+  <div class="toc-entry main"><span>9. المعاملات الذرّية (ACID Transactions)</span></div>
+  <div class="toc-entry main"><span>10. ملخص الملفات والتقنيات</span></div>
+</div>
+
+<!-- ============================================================ -->
+<!--                      1. INTRODUCTION                          -->
+<!-- ============================================================ -->
+<h1>1. مقدمة</h1>
+
+<p>
+يهدف مشروع <strong>ShopFlow</strong> إلى بناء نظام خلفي (Backend) متكامل لمنظومة تجارة إلكترونية، مع التركيز على المتطلبات غير الوظيفية المتعلقة بالبرمجة المتوازية والأداء العالي. يُغطي هذا التقرير المتطلبات الخمسة الأولى من متطلبات المشروع، مع شرح مفصّل للحلول المعتمارية والكود المصدري المستخدم لتحقيق كل متطلب.
+</p>
+
+<p>
+تم بناء النظام باستخدام إطار عمل <strong>Spring Boot 3.4.3</strong> مع <strong>Java 17</strong>، ويعتمد على <strong>PostgreSQL 16</strong> كقاعدة بيانات رئيسية، و<strong>Redis 7</strong> لإدارة الرموز والتخزين المؤقت، و<strong>Nginx</strong> كموزع أحمال، و<strong>Docker Compose</strong> لتنسيق الحاويات. كما تم دمج <strong>Prometheus</strong> و<strong>Grafana</strong> لمراقبة الأداء في الزمن الحقيقي.
+</p>
+
+<!-- ============================================================ -->
+<!--                  2. CONCURRENT ACCESS                         -->
+<!-- ============================================================ -->
+<h1>2. المتطلب الأول &mdash; حماية البيانات المشتركة من التضارب</h1>
+<p class="no-indent"><em>(Concurrent Access &amp; Data Integrity)</em></p>
+
+<p>
+يتطلب النظام آلية تسمح لعدة مستخدمين بتعديل نفس المورد (مثل كمية المنتج في المخزون) دون حدوث تضارب أو فقدان بيانات. تم تطبيق نهج مزدوج يجمع بين <strong>القفل المتفائل</strong> للعمليات العادية و<strong>القفل المتشائم</strong> للعمليات ذات التضارب العالي (مثل التخفيضات السريعة).
+</p>
+
+<h2>2.1 القفل المتفائل (Optimistic Locking)</h2>
+
+<p>
+يعتمد القفل المتفائل على افتراض أن التضارب نادر الحدوث. يُضاف حقل <code>@Version</code> لكيان المنتج، يزداد تلقائياً مع كل عملية تحديث. إذا حاول خيطان تعديل نفس السجل في الوقت ذاته، يفشل الثاني بخطأ <code>OptimisticLockException</code>.
+</p>
+
+<h3>كيان المنتج مع حقل الإصدار:</h3>
+<p class="no-indent"><span class="filepath">src/main/java/.../product/entity/Product.java</span></p>
+<pre>@Entity
+@Table(name = "products")
+public class Product extends BaseEntity {
+
+    private String name;
+    private int stockQuantity;
+    private BigDecimal price;
+
+    @Version
+    @Column(nullable = false)
+    @Builder.Default
+    private Long version = 0L;
+}</pre>
+
+<p>
+عند تنفيذ عملية التحديث، يُولّد JPA استعلام SQL يتضمن شرط الإصدار:
+</p>
+<pre>UPDATE products
+SET stock_quantity = ?, version = version + 1
+WHERE id = ? AND version = ?</pre>
+
+<p>
+إذا لم يتطابق الإصدار (أي أن خيطاً آخر عدّل السجل)، لا يُحدَّث أي سطر ويُطرح استثناء. تتعامل استراتيجية الشراء المتفائلة مع هذا الاستثناء عبر إعادة المحاولة:
+</p>
+
+<h3>استراتيجية الشراء بالقفل المتفائل:</h3>
+<p class="no-indent"><span class="filepath">src/main/java/.../product/strategy/OptimisticPurchaseStrategy.java</span></p>
+<pre>@Component("optimisticPurchase")
+public class OptimisticPurchaseStrategy implements PurchaseStrategy {
+
+    private static final int MAX_RETRIES = 3;
+
+    @Override
+    @Transactional
+    public Product purchase(UUID productId, int quantity) {
+        int attempt = 0;
+        while (attempt &lt; MAX_RETRIES) {
+            try {
+                return attemptPurchase(productId, quantity);
+            } catch (ObjectOptimisticLockingFailureException ex) {
+                attempt++;
+                log.warn("Optimistic lock conflict - attempt {}/{}", attempt, MAX_RETRIES);
+            }
+        }
+        throw new ConflictException("Could not complete purchase after " + MAX_RETRIES + " retries");
+    }
+
+    private Product attemptPurchase(UUID productId, int quantity) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        if (product.getStockQuantity() &lt; quantity) {
+            throw new InsufficientStockException("Not enough stock");
+        }
+        product.setStockQuantity(product.getStockQuantity() - quantity);
+        return productRepository.save(product);
+    }
+}</pre>
+
+<h2>2.2 القفل المتشائم (Pessimistic Locking)</h2>
+
+<p>
+في حالة التخفيضات السريعة (Flash Sales)، يكون التضارب شبه مؤكد مع عشرات المستخدمين يتنافسون على كمية محدودة. هنا يُستخدم القفل المتشائم الذي يقفل السجل على مستوى قاعدة البيانات فوراً باستخدام <code>SELECT ... FOR UPDATE</code>.
+</p>
+
+<h3>الاستعلام مع القفل المتشائم:</h3>
+<p class="no-indent"><span class="filepath">src/main/java/.../flashsale/repository/FlashSaleRepository.java</span></p>
+<pre>@Lock(LockModeType.PESSIMISTIC_WRITE)
+@Query("SELECT f FROM FlashSale f WHERE f.id = :id")
+Optional&lt;FlashSale&gt; findByIdWithLock(@Param("id") UUID id);</pre>
+
+<p>
+يُترجم هذا إلى استعلام SQL:
+</p>
+<pre>SELECT * FROM flash_sales WHERE id = ? FOR UPDATE</pre>
+
+<p>
+أي خيط آخر يحاول قراءة نفس السجل سيُحظر تلقائياً حتى ينتهي الخيط الأول من المعاملة (COMMIT أو ROLLBACK).
+</p>
+
+<h3>استراتيجية الشراء بالقفل المتشائم:</h3>
+<p class="no-indent"><span class="filepath">src/main/java/.../product/strategy/PessimisticPurchaseStrategy.java</span></p>
+<pre>@Component("pessimisticPurchase")
+public class PessimisticPurchaseStrategy implements PurchaseStrategy {
+
+    @Override
+    @Transactional
+    public Product purchase(UUID flashSaleId, int quantity) {
+        FlashSale flashSale = flashSaleRepository.findByIdWithLock(flashSaleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Flash sale not found"));
+
+        if (flashSale.getRemainingQuantity() &lt; quantity) {
+            throw new InsufficientStockException("Flash sale sold out");
+        }
+
+        flashSale.setRemainingQuantity(flashSale.getRemainingQuantity() - quantity);
+        flashSaleRepository.save(flashSale);
+        return flashSale.getProduct();
+    }
+}</pre>
+
+<h2>2.3 نمط الاستراتيجية (Strategy Pattern)</h2>
+
+<p>
+تم تطبيق نمط التصميم Strategy لاختيار آلية القفل المناسبة حسب نوع الطلب. في خدمة الطلبات، يتم تفويض اختيار القفل إلى الاستراتيجية المناسبة:
+</p>
+<pre>// الشراء العادي → قفل متفائل
+Product product = optimisticStrategy.purchase(itemReq.getProductId(), itemReq.getQuantity());
+
+// تخفيضات سريعة → قفل متشائم
+Product product = pessimisticStrategy.purchase(flashSaleId, quantity);</pre>
+
+<div class="diagram">
+         ┌──────────────────────┐
+         │   PurchaseStrategy   │  &lt;interface&gt;
+         │   + purchase()       │
+         └──────────┬───────────┘
+                    │
+        ┌───────────┴───────────┐
+        │                       │
+┌───────┴────────┐   ┌─────────┴──────────┐
+│  Optimistic    │   │   Pessimistic      │
+│  @Version      │   │   SELECT...FOR     │
+│  + retry (3x)  │   │   UPDATE           │
+└────────────────┘   └────────────────────┘
+</div>
+
+<div class="screenshots-section">
+<h3>نتائج الاختبار العملي &mdash; القفل المتفائل والمتشائم</h3>
+
+<p>
+تم اختبار آلية القفل عبر سكربتات Bash تُرسل طلبات متزامنة لمحاكاة سيناريوهات الاستخدام الحقيقي. تم اختبار الأداء <strong>مع القفل</strong> و<strong>بدون القفل</strong> لتوضيح أهمية آلية الحماية.
+</p>
+
+<h3>أولاً: اختبار القفل المتفائل (مع تفعيل @Version وآلية إعادة المحاولة)</h3>
+<p>
+إرسال 10 طلبات شراء متزامنة لمنتج iPhone 16 Pro (المخزون = 50). النتيجة: المخزون انخفض بشكل صحيح، مع ظهور رسائل <code>OptimisticLockingFailureException</code> في السجلات عند حدوث تضارب، وتم إعادة المحاولة تلقائياً.
+</p>
+
+<div class="screenshot">
+  <img src="images/opt-with-locks.png" alt="نتائج اختبار القفل المتفائل مع تفعيل القفل">
+  <div class="caption">شكل 1: اختبار القفل المتفائل — المخزون تغيّر من 50 إلى 48 مع نجاح الطلبات وظهور إعادة المحاولة عند التضارب</div>
+</div>
+
+<h3>ثانياً: اختبار القفل المتشائم (مع تفعيل SELECT...FOR UPDATE)</h3>
+<p>
+إرسال 15 طلب شراء متزامن لتخفيض سريع Samsung Galaxy S25 (الكمية = 10). النتيجة: نجحت 10 طلبات فقط ورُفضت 5 بسبب نفاد الكمية — حماية كاملة من البيع الزائد.
+</p>
+
+<div class="screenshot">
+  <img src="images/pess-with-locks.png" alt="نتائج اختبار القفل المتشائم مع تفعيل القفل">
+  <div class="caption">شكل 2: اختبار القفل المتشائم — 10 طلبات نجحت (SUCCESS) و5 رُفضت (REJECTED) من أصل 15 طلب متزامن</div>
+</div>
+
+<h3>ثالثاً: اختبار بدون أقفال — إثبات حدوث فقدان البيانات (Lost Updates)</h3>
+<p>
+لإثبات أهمية آليات القفل، تم إزالة <code>@Version</code> من كيان المنتج وإزالة <code>@Lock</code> من الاستعلام وآلية إعادة المحاولة. النتائج أظهرت فقدان بيانات كارثي:
+</p>
+
+<div class="screenshot">
+  <img src="images/opt-no-locks-lost-update.png" alt="اختبار بدون قفل متفائل — فقدان بيانات">
+  <div class="caption">شكل 3: بدون @Version — إرسال 10 طلبات متزامنة وجميعها نجحت (HTTP 201) لكن المخزون انخفض من 50 إلى 49 فقط بدلاً من 40! (فقدان 9 عمليات تحديث)</div>
+</div>
+
+<p>
+في السجلات نلاحظ أن جميع الخيوط قرأت نفس القيمة <code>stock=50</code> في الوقت ذاته، وكل خيط طرح منها 1 وحفظ 49. الكتابة الأخيرة هي التي سادت (Last Write Wins)، مما أدى لفقدان 9 عمليات شراء.
+</p>
+
+<div class="screenshot">
+  <img src="images/pess-with-locks-all-success.png" alt="اختبار القفل المتشائم — جميع الطلبات نجحت مع القفل">
+  <div class="caption">شكل 4: اختبار القفل المتشائم مع التفعيل — جميع 15 طلب تمت معالجتها بشكل متسلسل عبر SELECT...FOR UPDATE</div>
+</div>
+
+</div>
+
+<!-- ============================================================ -->
+<!--             3. RESOURCE MANAGEMENT                            -->
+<!-- ============================================================ -->
+<h1>3. المتطلب الثاني &mdash; إدارة الموارد الحاسوبية</h1>
+<p class="no-indent"><em>(Resource Management &amp; Capacity Control)</em></p>
+
+<p>
+يتطلب النظام التحكم في عدد العمليات المتوازية لمنع استنزاف الموارد (انهيار) أو تقليلها بشكل يبطئ الاستجابة. تم تطبيق هذا المتطلب على ثلاثة مستويات: اتصالات قاعدة البيانات، اتصالات Redis، ومجمعات الخيوط.
+</p>
+
+<h2>3.1 إدارة اتصالات قاعدة البيانات (HikariCP)</h2>
+
+<p>
+HikariCP هو مجمع اتصالات عالي الأداء يأتي مدمجاً مع Spring Boot. تم ضبطه للسماح بحد أقصى 10 اتصالات متزامنة لقاعدة البيانات:
+</p>
+
+<p class="no-indent"><span class="filepath">src/main/resources/application.yml</span></p>
+<pre>spring:
+  datasource:
+    hikari:
+      pool-name: HikariPool-AuthDB
+      maximum-pool-size: 10       # الحد الأقصى للاتصالات المتزامنة
+      minimum-idle: 5             # الحد الأدنى للاتصالات الجاهزة
+      idle-timeout: 300000        # 5 دقائق - إغلاق الاتصالات الخاملة
+      connection-timeout: 30000   # 30 ثانية - فشل سريع بدلاً من الانتظار اللانهائي
+      max-lifetime: 1800000       # 30 دقيقة - إعادة تدوير الاتصالات
+      leak-detection-threshold: 60000  # تحذير إذا بقي اتصال مفتوحاً أكثر من 60 ثانية</pre>
+
+<table>
+  <tr><th>المعامل</th><th>القيمة</th><th>الهدف</th></tr>
+  <tr><td>maximum-pool-size</td><td>10</td><td>منع إغراق PostgreSQL بعدد كبير من الاتصالات</td></tr>
+  <tr><td>minimum-idle</td><td>5</td><td>ضمان جاهزية 5 اتصالات دائماً لتقليل زمن الاستجابة</td></tr>
+  <tr><td>connection-timeout</td><td>30 ثانية</td><td>فشل سريع بدلاً من حجز الخيط إلى ما لا نهاية</td></tr>
+  <tr><td>leak-detection-threshold</td><td>60 ثانية</td><td>كشف تسريب الاتصالات (نسيان إغلاقها)</td></tr>
+</table>
+
+<h2>3.2 إدارة اتصالات Redis (Lettuce Pool)</h2>
+
+<p>
+يُستخدم Redis لإبطال رموز JWT وتخزين البيانات المؤقتة. تم ضبط مجمع Lettuce لتحديد عدد الاتصالات المتزامنة:
+</p>
+<pre>spring:
+  data:
+    redis:
+      lettuce:
+        pool:
+          max-active: 10      # الحد الأقصى للاتصالات المتزامنة
+          max-idle: 5          # اتصالات خاملة جاهزة
+          min-idle: 2          # اتصالات دافئة دائماً
+          max-wait: 2000ms     # فشل بعد ثانيتين إذا لم يتوفر اتصال</pre>
+
+<h2>3.3 إدارة مجمعات الخيوط (Thread Pool Executors)</h2>
+
+<p>
+تم تعريف مجمعَيْ خيوط منفصلين لعزل الموارد بين المهام المختلفة ومنع تأثير نوع من المهام على نوع آخر:
+</p>
+
+<p class="no-indent"><span class="filepath">src/main/java/.../shared/config/AsyncConfig.java</span></p>
+<pre>@Configuration
+@EnableAsync
+@EnableScheduling
+public class AsyncConfig {
+
+    // مجمع خيوط لمعالجة أحداث الطلبات (فواتير، إشعارات)
+    @Bean(name = "orderExecutor")
+    public Executor orderExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(5);       // 5 خيوط أساسية
+        executor.setMaxPoolSize(20);       // يتوسع حتى 20 خيط تحت الضغط
+        executor.setQueueCapacity(100);    // طابور يستوعب 100 مهمة
+        executor.setThreadNamePrefix("order-async-");
+        executor.setRejectedExecutionHandler(
+            new ThreadPoolExecutor.CallerRunsPolicy()   // تدهور أنيق
+        );
+        executor.initialize();
+        return executor;
+    }
+
+    // مجمع خيوط مخصص للمهام الدفعية (معزول عن حركة الطلبات)
+    @Bean(name = "batchExecutor")
+    public Executor batchExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(5);
+        executor.setQueueCapacity(10);
+        executor.setThreadNamePrefix("batch-job-");
+        executor.setRejectedExecutionHandler(
+            new ThreadPoolExecutor.CallerRunsPolicy()
+        );
+        executor.initialize();
+        return executor;
+    }
+}</pre>
+
+<div class="note">
+  <strong>ملاحظة معمارية &mdash; CallerRunsPolicy:</strong>
+  عند امتلاء الطابور والوصول للحد الأقصى من الخيوط، بدلاً من رفض المهمة (وفقدانها)، يقوم الخيط المُستدعي بتنفيذها بنفسه. هذا يُبطئ قبول المهام الجديدة بشكل طبيعي (Back-pressure) دون فقدان أي بيانات.
+</div>
+
+<div class="diagram">
+┌─────────────────────────────────────────────┐
+│              Application Thread Pools        │
+├──────────────────────┬──────────────────────┤
+│   orderExecutor      │   batchExecutor      │
+│   Core: 5            │   Core: 2            │
+│   Max: 20            │   Max: 5             │
+│   Queue: 100         │   Queue: 10          │
+│   ────────────────   │   ────────────────   │
+│   Invoice generation │   Daily sales report │
+│   Email sending      │   Token cleanup      │
+│   Notifications      │                      │
+└──────────────────────┴──────────────────────┘
+</div>
+
+<div class="screenshots-section">
+<h3>نتائج المراقبة العملية &mdash; حالة الموارد في الزمن الحقيقي</h3>
+
+<p>
+تم رصد حالة جميع الموارد عبر لوحة مراقبة Grafana أثناء تنفيذ اختبارات التزامن. تُظهر اللقطات التالية حالة مجمعات الخيوط واتصالات قاعدة البيانات لكلا النسختين:
+</p>
+
+<div class="screenshot">
+  <img src="images/grafana-threads-detail.png" alt="مراقبة مجمعات الخيوط واتصالات قاعدة البيانات">
+  <div class="caption">شكل 5: حالة مجمعات الخيوط — Live Threads: 34 لكل نسخة، Peak: 36، Executor Pool Size و Queue Remaining لكل مجمع خيوط، واتصالات HikariCP (5 خاملة، 10 كحد أقصى)</div>
+</div>
+
+<div class="screenshot">
+  <img src="images/grafana-threads-hikari.png" alt="تفاصيل Thread Pools و HikariCP">
+  <div class="caption">شكل 6: مقاييس مفصّلة — رموز حالة HTTP (200, 201, 500)، إجمالي الطلبات لكل مسار، مع إحصائيات مجمعات الخيوط (Executor Active/Pool Size/Max/Queue) وقاعدة البيانات (Active/Idle/Pending/Total Connections)</div>
+</div>
+
+</div>
+
+<!-- ============================================================ -->
+<!--              4. ASYNCHRONOUS QUEUES                           -->
+<!-- ============================================================ -->
+<h1>4. المتطلب الثالث &mdash; المعالجة غير المتزامنة</h1>
+<p class="no-indent"><em>(Asynchronous Queues)</em></p>
+
+<p>
+يتطلب نقل المهام التي لا يحتاج المستخدم لانتظارها (مثل إصدار الفواتير أو إرسال الإشعارات) خارج المسار الرئيسي للطلب. بذلك يحصل المستخدم على استجابة فورية بينما تُنفَّذ المهام الثقيلة في الخلفية.
+</p>
+
+<h2>4.1 نمط الحدث/المستمع (Event/Listener Pattern)</h2>
+
+<p>
+عند إتمام طلب شراء، يُنشر حدث <code>OrderPlacedEvent</code> عبر نظام أحداث Spring. يلتقطه مستمع غير متزامن يعمل في خيط منفصل:
+</p>
+
+<h3>نشر الحدث عند إتمام الطلب:</h3>
+<p class="no-indent"><span class="filepath">src/main/java/.../order/service/OrderService.java</span></p>
+<pre>@Transactional
+public Order placeOrder(UUID userId, PlaceOrderRequest request) {
+    // ... إنشاء الطلب وتحديث المخزون ...
+    order = orderRepository.save(order);
+
+    // نشر الحدث — المستمع يعالج الفاتورة بشكل غير متزامن
+    eventPublisher.publishEvent(new OrderPlacedEvent(this, order));
+    log.info("Order placed - async invoice triggered");
+
+    return order;  // الاستجابة تُرسل فوراً قبل إنشاء الفاتورة
+}</pre>
+
+<h3>المستمع غير المتزامن:</h3>
+<p class="no-indent"><span class="filepath">src/main/java/.../order/event/OrderEventListener.java</span></p>
+<pre>@Component
+public class OrderEventListener {
+
+    @Async("orderExecutor")  // يعمل في مجمع خيوط الطلبات
+    @EventListener
+    public void onOrderPlaced(OrderPlacedEvent event) {
+        Order order = event.getOrder();
+        log.info("[ASYNC] Handling OrderPlacedEvent in thread {}",
+                 Thread.currentThread().getName());
+        try {
+            invoiceService.generateInvoice(order);
+            log.info("[ASYNC] Invoice generated for order {}", order.getId());
+        } catch (Exception ex) {
+            log.error("[ASYNC] Failed to generate invoice for order {}", order.getId());
+        }
+    }
+}</pre>
+
+<div class="diagram">
+HTTP Request                           Background Thread (orderExecutor)
+    │                                         │
+    ▼                                         │
+ placeOrder()                                 │
+    │── save order ──►  DB                    │
+    │── publish event ─────────────────────►  onOrderPlaced()
+    │                                         │── generateInvoice()
+    ▼                                         │── save invoice ──►  DB
+ return HTTP 200                              │
+ (user gets instant response)                 ▼ done
+</pre>
+</div>
+
+<h2>4.2 إرسال البريد الإلكتروني بشكل غير متزامن</h2>
+
+<p>
+جميع عمليات إرسال البريد الإلكتروني (التحقق من الحساب، إعادة تعيين كلمة المرور) تتم بشكل غير متزامن حتى لا يُحظر الخيط الرئيسي بانتظار خادم SMTP:
+</p>
+
+<p class="no-indent"><span class="filepath">src/main/java/.../auth/service/EmailService.java</span></p>
+<pre>@Service
+public class EmailService {
+
+    @Async   // يعمل في خيط منفصل
+    public void sendVerificationEmail(String to, String token) {
+        String verificationUrl = baseUrl + "/api/auth/verify-email?token=" + token;
+        sendHtmlEmail(to, "Verify your email address", body);
+    }
+
+    @Async
+    public void sendPasswordResetEmail(String to, String token) {
+        String resetUrl = baseUrl + "/api/auth/reset-password?token=" + token;
+        sendHtmlEmail(to, "Reset your password", body);
+    }
+}</pre>
+
+<h2>4.3 إبطال الرموز عبر Redis</h2>
+
+<p>
+عند تسجيل الخروج، يتم إدراج رمز JWT في القائمة السوداء عبر Redis مع مدة انتهاء تلقائية (TTL)، مما يمنع إعادة استخدام الرمز:
+</p>
+<pre>public void blacklist(String jti, long remainingMs) {
+    String key = "jwt:blacklist:" + jti;
+    redisTemplate.opsForValue().set(key, "1", Duration.ofMillis(remainingMs));
+    // Redis يحذف المفتاح تلقائياً بعد انتهاء المدة
+}</pre>
+
+<!-- ============================================================ -->
+<!--              5. BATCH PROCESSING                              -->
+<!-- ============================================================ -->
+<h1>5. المتطلب الرابع &mdash; معالجة البيانات الضخمة على دفعات</h1>
+<p class="no-indent"><em>(Batch Processing)</em></p>
+
+<p>
+يتطلب برمجة وظيفة خلفية تقوم بجرد المبيعات اليومية ومعالجتها كدفعات (Chunks) لزيادة سرعة الأداء. تم تحقيق ذلك عبر مهمة مجدولة تستخدم الترقيم الصفحي (Pagination) لتقسيم البيانات.
+</p>
+
+<h2>5.1 المهمة المجدولة (Scheduled Job)</h2>
+
+<p>
+يتم تشغيل تقرير المبيعات اليومية تلقائياً عند منتصف الليل بتوقيت UTC، في مجمع خيوط مخصص ومعزول عن حركة الطلبات:
+</p>
+
+<p class="no-indent"><span class="filepath">src/main/java/.../report/scheduler/DailySalesJob.java</span></p>
+<pre>@Component
+public class DailySalesJob {
+
+    @Async("batchExecutor")  // مجمع خيوط مخصص (2 أساسي، 5 حد أقصى)
+    @Scheduled(cron = "0 0 0 * * *", zone = "UTC")  // كل يوم عند منتصف الليل
+    public void runDailyReport() {
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        log.info("[BATCH] Starting daily sales report for {} in thread {}",
+                 yesterday, Thread.currentThread().getName());
+        reportService.generateReportForDate(yesterday);
+    }
+}</pre>
+
+<h2>5.2 المعالجة على شكل دفعات (Chunk Processing)</h2>
+
+<p>
+بدلاً من تحميل جميع الطلبات في الذاكرة دفعة واحدة (مما قد يسبب <code>OutOfMemoryError</code>)، تتم المعالجة على دفعات بحجم 500 سجل باستخدام <code>Pageable</code>:
+</p>
+
+<p class="no-indent"><span class="filepath">src/main/java/.../report/service/DailySalesReportService.java</span></p>
+<pre>@Service
+public class DailySalesReportService {
+
+    private static final int CHUNK_SIZE = 500;
+
+    @Transactional
+    public void generateReportForDate(LocalDate date) {
+        // التحقق من عدم وجود تقرير مُسبق (idempotency)
+        if (reportRepository.existsByReportDate(date)) {
+            log.info("Report for {} already exists - skipping", date);
+            return;
+        }
+
+        DailySalesReport report = DailySalesReport.builder()
+                .reportDate(date)
+                .status(ReportStatus.PROCESSING)
+                .build();
+        report = reportRepository.save(report);
+
+        int page = 0;
+        int totalOrders = 0;
+        BigDecimal totalRevenue = BigDecimal.ZERO;
+        Page&lt;Order&gt; chunk;
+
+        try {
+            do {
+                // جلب CHUNK_SIZE سجل في كل مرة
+                chunk = orderRepository.findByStatusAndCreatedAtBetween(
+                        OrderStatus.CONFIRMED, from, to,
+                        PageRequest.of(page, CHUNK_SIZE)
+                );
+
+                for (Order order : chunk.getContent()) {
+                    totalRevenue = totalRevenue.add(order.getTotalAmount());
+                }
+                totalOrders += chunk.getNumberOfElements();
+
+                log.info("Batch chunk {} processed - {} orders", page, chunk.getNumberOfElements());
+                page++;
+
+            } while (chunk.hasNext());
+
+            report.setTotalOrders(totalOrders);
+            report.setTotalRevenue(totalRevenue);
+            report.setStatus(ReportStatus.COMPLETED);
+            reportRepository.save(report);
+
+        } catch (Exception ex) {
+            report.setStatus(ReportStatus.FAILED);
+            reportRepository.save(report);
+            log.error("Daily report for {} failed: {}", date, ex.getMessage());
+        }
+    }
+}</pre>
+
+<div class="diagram">
+  ┌─────────┐    Chunk 0 (500 orders)    ┌──────────┐
+  │         │ ◄──────────────────────────►│          │
+  │         │    Chunk 1 (500 orders)     │          │
+  │  App    │ ◄──────────────────────────►│ Postgres │
+  │ (batch  │    Chunk 2 (237 orders)     │          │
+  │  thread)│ ◄──────────────────────────►│          │
+  │         │    hasNext() = false → DONE │          │
+  └─────────┘                             └──────────┘
+
+  Memory at any point: max 500 Order objects (not 1237)
+</div>
+
+<div class="note">
+  <strong>ملاحظة &mdash; تنظيف الرموز المنتهية:</strong>
+  بالإضافة لتقرير المبيعات، توجد مهمة مجدولة أخرى تعمل كل ساعة لحذف رموز التحديث المنتهية والملغاة من قاعدة البيانات:
+<pre>@Scheduled(fixedRate = 3600000)  // كل ساعة
+@Transactional
+public void cleanupStaleTokens() {
+    refreshTokenRepository.deleteExpiredTokens(Instant.now());
+    refreshTokenRepository.deleteRevokedTokensBefore(now.minus(24, ChronoUnit.HOURS));
+    log.info("Token cleanup completed");
+}</pre>
+</div>
+
+<div class="screenshots-section">
+<h3>نتائج الاختبار العملي &mdash; المعالجة على دفعات مقابل التحميل الكامل</h3>
+
+<p>
+تم اختبار المعالجة على دفعات بحجم 50 سجل لـ 144 طلب. تُظهر السجلات أن كلتا النسختين عالجتا 3 دفعات (Chunk 0: 50 طلب، Chunk 1: 50 طلب، Chunk 2: 44 طلب) بشكل متوازٍ:
+</p>
+
+<div class="screenshot">
+  <img src="images/batch-chunk-processing.png" alt="سجلات المعالجة على دفعات">
+  <div class="caption">شكل 7: المعالجة على دفعات — كلتا النسختين (app-1, app-2) تعالجان 144 طلب على 3 دفعات (50+50+44) في خيط batch-job-1</div>
+</div>
+
+<h3>مقارنة: التحميل الكامل بدون دفعات (النهج غير المحسّن)</h3>
+<p>
+لإثبات أهمية نهج الدفعات، تم تعديل الكود لتحميل جميع الطلبات دفعة واحدة في الذاكرة. تُظهر السجلات الرسالة <code>"Fetching ALL orders at once (no chunking)"</code> — في بيئة إنتاجية مع ملايين السجلات، سيؤدي هذا النهج إلى <code>OutOfMemoryError</code>:
+</p>
+
+<div class="screenshot">
+  <img src="images/batch-no-chunking.png" alt="سجلات التحميل الكامل بدون دفعات">
+  <div class="caption">شكل 8: النهج غير المحسّن — تحميل جميع الطلبات في الذاكرة دفعة واحدة (Fetching ALL orders at once)</div>
+</div>
+
+<div class="screenshot">
+  <img src="images/batch-no-chunking-code.png" alt="الكود المصدري للنهج غير المحسّن">
+  <div class="caption">شكل 9: كود DailySalesReportService بدون دفعات — يستخدم findAllByStatusAndCreatedAtBetween لتحميل كل شيء مرة واحدة</div>
+</div>
+
+<div class="screenshot">
+  <img src="images/batch-duplicate-key-error.png" alt="خطأ القيد الفريد عند تشغيل النسختين">
+  <div class="caption">شكل 10: خطأ duplicate key — عندما تحاول كلتا النسختين إنشاء التقرير في الوقت ذاته، تفشل إحداهما بسبب القيد الفريد على report_date (سلوك متوقع ومحمي)</div>
+</div>
+
+</div>
+
+<!-- ============================================================ -->
+<!--              6. LOAD DISTRIBUTION                             -->
+<!-- ============================================================ -->
+<h1>6. المتطلب الخامس &mdash; توزيع الأحمال</h1>
+<p class="no-indent"><em>(Load Distribution)</em></p>
+
+<p>
+يتطلب محاكاة توزيع الطلبات على أكثر من خادم مع توضيح وتبرير استراتيجية التوزيع المستخدمة. تم تحقيق ذلك عبر <strong>Nginx</strong> كموزع أحمال أمام نسختين من تطبيق Spring Boot، مُدارة بواسطة <strong>Docker Compose</strong>.
+</p>
+
+<h2>6.1 البنية التحتية (Docker Compose + Nginx)</h2>
+
+<p>
+يتم تشغيل نسختين من التطبيق عبر أمر التوسيع في Docker Compose:
+</p>
+<pre>docker compose up --scale app=2</pre>
+
+<p>
+هذا يُنشئ حاويتين متطابقتين (app-1 و app-2) خلف شبكة Docker واحدة. يتعامل Nginx مع جميع الطلبات الواردة على المنفذ 80 ويوزعها بين النسختين:
+</p>
+
+<p class="no-indent"><span class="filepath">docker-compose.yml</span> (المقتطفات الأساسية):</p>
+<pre>services:
+  app:
+    image: shopflow:latest
+    # بدون container_name — ضروري للتوسيع
+    # بدون ports — Nginx يتعامل مع الوصول الخارجي
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app</pre>
+
+<h2>6.2 استراتيجية التوزيع (Round-Robin via Docker DNS)</h2>
+
+<p>
+تم اعتماد استراتيجية <strong>Round-Robin</strong> (التناوب الدوري) لتوزيع الطلبات بالتساوي بين النسختين. يعتمد التطبيق على نظام DNS الداخلي لـ Docker الذي يُعيد عناوين IP مختلفة عند كل استعلام لاسم الخدمة <code>app</code>.
+</p>
+
+<p>
+النقطة الحرجة: يجب استخدام متغير في <code>proxy_pass</code> لإجبار Nginx على إعادة الاستعلام عن DNS في كل طلب (بدون ذلك يُخزّن Nginx العنوان مرة واحدة عند الإقلاع ويُرسل جميع الطلبات لنسخة واحدة):
+</p>
+
+<p class="no-indent"><span class="filepath">nginx/nginx.conf</span></p>
+<pre>server {
+    listen 80;
+    server_name localhost;
+
+    # مُحلل DNS الداخلي لـ Docker — إعادة الاستعلام كل 5 ثوانٍ
+    resolver 127.0.0.11 valid=5s ipv6=off;
+
+    # حجب نقاط الوصول الداخلية من الخارج
+    location /actuator {
+        deny all;
+        return 403;
+    }
+
+    location / {
+        # المتغير يُجبر إعادة استعلام DNS في كل طلب
+        set $backend http://app:8080;
+        proxy_pass $backend;
+
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}</pre>
+
+<div class="note">
+  <strong>لماذا Round-Robin وليس استراتيجية أخرى؟</strong>
+  بما أن نسختَي التطبيق متطابقتان في الموارد والإعدادات، فإن التوزيع بالتساوي هو الخيار الأمثل. استراتيجيات مثل Least Connections أو IP Hash تُضيف تعقيداً دون فائدة عندما تكون الخوادم متماثلة.
+</div>
+
+<h2>6.3 تسجيل الطلبات عبر AOP</h2>
+
+<p>
+لإثبات أن التوزيع يعمل فعلياً، تم تطبيق مفهوم <strong>البرمجة الموجهة للجوانب (AOP)</strong> لاعتراض كل طلب HTTP وتسجيل مُعرّف النسخة التي عالجته:
+</p>
+
+<p class="no-indent"><span class="filepath">src/main/java/.../shared/config/RequestLoggingAspect.java</span></p>
+<pre>@Aspect
+@Component
+@Slf4j
+public class RequestLoggingAspect {
+
+    @Value("${HOSTNAME:single}")
+    private String instanceId;
+
+    @Around("@within(org.springframework.web.bind.annotation.RestController)")
+    public Object logRequest(ProceedingJoinPoint joinPoint) throws Throwable {
+        HttpServletRequest request = ((ServletRequestAttributes)
+                RequestContextHolder.getRequestAttributes()).getRequest();
+
+        String method = request.getMethod();
+        String uri = request.getRequestURI();
+
+        log.info("[INSTANCE: {}] --&gt; {} {} (handler: {})",
+                instanceId, method, uri, joinPoint.getSignature().toShortString());
+
+        long start = System.currentTimeMillis();
+        Object result = joinPoint.proceed();
+        long duration = System.currentTimeMillis() - start;
+
+        log.info("[INSTANCE: {}] &lt;-- {} {} completed in {}ms",
+                instanceId, method, uri, duration);
+
+        return result;
+    }
+}</pre>
+
+<p>
+عند تشغيل <code>docker compose logs app</code> وإرسال عدة طلبات، تظهر السجلات بالتناوب بين النسختين:
+</p>
+<pre>app-1  | [INSTANCE: aa087c423ab6] --> GET /api/products completed in 13ms
+app-2  | [INSTANCE: 32433b18c8ce] --> GET /api/products completed in 13ms
+app-1  | [INSTANCE: aa087c423ab6] --> GET /api/products completed in 2ms
+app-2  | [INSTANCE: 32433b18c8ce] --> GET /api/products completed in 3ms</pre>
+
+<h2>6.4 المراقبة باستخدام Prometheus و Grafana</h2>
+
+<p>
+لمراقبة أداء الطلبات ومدتها في الزمن الحقيقي، تم دمج <strong>Prometheus</strong> لجمع المقاييس و<strong>Grafana</strong> لعرضها بصرياً. يستخدم التطبيق <strong>Spring Boot Actuator</strong> مع <strong>Micrometer</strong> لتصدير المقاييس بتنسيق Prometheus:
+</p>
+
+<pre>management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  metrics:
+    tags:
+      application: shopflow
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5,0.95,0.99</pre>
+
+<p>
+يقوم Prometheus بجمع المقاييس من كلتا النسختين تلقائياً عبر اكتشاف DNS:
+</p>
+<pre>scrape_configs:
+  - job_name: 'shopflow'
+    metrics_path: '/actuator/prometheus'
+    dns_sd_configs:
+      - names: ['app']
+        type: 'A'
+        port: 8080</pre>
+
+<p>
+تم إعداد لوحة مراقبة Grafana مُسبقة التهيئة تعرض:
+</p>
+<ul>
+  <li>عدد الطلبات المعالجة لكل نسخة (لإثبات توزيع الحمل)</li>
+  <li>جدول تفصيلي بكل مسار: المدة المتوسطة، المدة القصوى، عدد الطلبات</li>
+  <li>حالة الخيوط (نشطة، خاملة، محجوبة) كأرقام مباشرة</li>
+  <li>حالة مجمع اتصالات قاعدة البيانات (HikariCP)</li>
+  <li>معدل الطلبات في الثانية لكل نسخة ورموز حالة HTTP</li>
+</ul>
+
+<div class="diagram">
+                    ┌───────────┐
+  HTTP :80          │   Nginx   │
+  ────────────────► │  (LB)     │
+                    └─────┬─────┘
+                          │ Round-Robin (Docker DNS)
+                ┌─────────┴─────────┐
+                ▼                   ▼
+          ┌───────────┐       ┌───────────┐
+          │  App - 1  │       │  App - 2  │
+          │  :8080    │       │  :8080    │
+          └─────┬─────┘       └─────┬─────┘
+                │   /actuator/prometheus    │
+                ▼                   ▼
+          ┌─────────────────────────────┐
+          │        Prometheus :9090     │
+          └──────────────┬──────────────┘
+                         ▼
+          ┌─────────────────────────────┐
+          │        Grafana :3000        │
+          │   (dashboards & alerts)     │
+          └─────────────────────────────┘
+</div>
+
+<div class="screenshots-section">
+<h3>نتائج المراقبة العملية &mdash; لوحة Grafana</h3>
+
+<p>
+تُظهر لوحة المراقبة توزيع الأحمال بشكل متساوٍ بين النسختين، مع تفاصيل كل مسار API ومدة الاستجابة:
+</p>
+
+<div class="screenshot">
+  <img src="images/grafana-load-balancing.png" alt="لوحة مراقبة توزيع الأحمال">
+  <div class="caption">شكل 11: نظرة عامة على توزيع الأحمال — Instance 1: 120 طلب، Instance 2: 125 طلب (توزيع شبه متساوٍ عبر Round-Robin)</div>
+</div>
+
+<div class="screenshot">
+  <img src="images/grafana-load-balancing-2.png" alt="جدول تفاصيل الطلبات لكل مسار">
+  <div class="caption">شكل 12: جدول تفصيلي بكل نقطة نهاية — المدة المتوسطة، المدة القصوى، النسخة المُعالِجة، وعدد الطلبات لكل نسخة</div>
+</div>
+
+<div class="screenshot">
+  <img src="images/grafana-final-dashboard.png" alt="لوحة المراقبة النهائية مع الرسوم البيانية">
+  <div class="caption">شكل 13: اللوحة النهائية — 118/122 طلب لكل نسخة، مع رسوم بيانية لمدة الاستجابة ومعدل الطلبات في الثانية على مدى 12 ساعة</div>
+</div>
+
+</div>
+
+<!-- ============================================================ -->
+<!--        7. STRESS TESTING / DATA INTEGRITY (Req 9)             -->
+<!-- ============================================================ -->
+<h1>7. اختبار الضغط (Stress Testing) &mdash; إثبات سلامة البيانات تحت التزامن العالي</h1>
+
+<p>
+لإثبات أن النظام يصمد تحت التزامن العالي دون فقدان أيّ بيانات، تم إجراء اختبار ضغط باستخدام <strong>Apache JMeter</strong> (عبر صورة Docker الرسمية) يحاكي <strong>100 مستخدم</strong> يرسلون طلب إنشاء طلب شراء (<code>POST /api/orders</code>) في <strong>اللحظة نفسها</strong> دفعةً واحدة.
+</p>
+
+<h2>7.1 تصميم الاختبار</h2>
+<p>
+تم تشغيل الاختبار عبر السكربت <code>loadtest/bench.sh</code> بالإعدادات التالية:
+</p>
+<pre dir="ltr">WRITE_USERS=100  LOOPS=1  RAMPUP=0  ./loadtest/bench.sh integrity</pre>
+<ul>
+  <li><strong>100 مستخدم متزامن</strong> (<code>WRITE_USERS=100</code>) — كل مستخدم يرسل <strong>طلباً واحداً فقط</strong> (<code>LOOPS=1</code>)، أي 100 طلب بالضبط.</li>
+  <li><strong>بدء فوري دفعة واحدة</strong> (<code>RAMPUP=0</code>) — تنطلق كل الخيوط في اللحظة نفسها لتوليد أقصى تنافس (Thundering Herd).</li>
+  <li><strong>كتالوج صغير (20 منتجاً)</strong> — لتركيز التنافس على عدد قليل من الصفوف وإجبار آلية القفل على العمل.</li>
+</ul>
+
+<h2>7.2 آلية الحماية تحت الاختبار</h2>
+<p>
+عند تزامن عدّة طلبات على المنتج نفسه، يرفض <strong>القفل المتفائل</strong> (<code>@Version</code> + إعادة المحاولة) الطلبات المتضاربة بدلاً من إفساد البيانات. الطلب المرفوض هو رفضٌ نظيف (لا يغيّر المخزون)، وليس فقداناً للبيانات. بعد انتهاء الاختبار تم التحقق من قاعدة البيانات للتأكد من تحقق الثابت التالي:
+</p>
+<pre dir="ltr">(المخزون المُباع) = (مجموع كميات عناصر الطلبات) = (عدد الطلبات المؤكدة)</pre>
+<p>
+أي أن كل وحدة نقصت من المخزون تقابلها بالضبط عنصرُ طلبٍ واحد وطلبٌ مؤكّدٌ واحد — <strong>لا بيع زائد، ولا فقدان أو تكرار لأي وحدة</strong>.
+</p>
+
+<div class="screenshots-section">
+<h3>نتيجة الاختبار العملي &mdash; 100 طلب متزامن</h3>
+<div class="screenshot">
+  <img src="images/7.jpg" alt="اختبار 100 مستخدم متزامن — سلامة البيانات">
+  <div class="caption">شكل 14: 100 مستخدم يرسلون الطلب نفسه في اللحظة ذاتها — الثابت محقّق تماماً (المُباع = الكميات = الطلبات المؤكدة) ✅ بدون أي بيع زائد أو فقدان بيانات</div>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!--      8. CACHING + BENCHMARK + BOTTLENECK (Req 6 + Req 10)     -->
+<!-- ============================================================ -->
+<h1>8. التخزين المؤقت (Caching) والقياس المرجعي وتحليل عنق الزجاجة</h1>
+
+<p>
+يجمع هذا المتطلب بين ثلاثة أمور مترابطة في <strong>تجربة واحدة</strong>: التخزين المؤقت (المتطلب 6) كتحسين، واختبار الضغط (المتطلب 9) كأداة قياس، والمقارنة قبل/بعد (المتطلب 10) كتحليل لعنق الزجاجة. كما تراقب لوحات Grafana (المتطلب 8) حالة النظام أثناء التجربة.
+</p>
+
+<h2>8.1 فكرة التخزين المؤقت في Redis</h2>
+<p>
+مسار قراءة المنتجات (<code>GET /api/products</code>) هو المسار الأكثر استخداماً. بدلاً من الوصول إلى PostgreSQL في كل طلب، يتم تخزين النتيجة في <strong>Redis</strong> وخدمتها من الذاكرة. تُخزَّن كائنات <code>ProductResponse</code> (وليس كيانات JPA) بمدة صلاحية <strong>60 ثانية</strong>، ويتم إبطال التخزين عند أي تغيّر في المخزون حتى لا تُقدَّم بيانات قديمة.
+</p>
+
+<pre dir="ltr">@Cacheable(value = "products", key = "'all'")          // قراءة: تُخدَم من Redis
+public List&lt;ProductResponse&gt; findAll() { ... }
+
+@CacheEvict(value = "products", allEntries = true)     // كتابة: تُبطِل التخزين
+public Product create(Product product) { ... }</pre>
+
+<p>
+يتم التحكم بالتخزين عبر الإعداد <code>spring.cache.type</code>: القيمة <code>redis</code> تُفعّله، والقيمة <code>none</code> تعطّله. هذا يسمح بتشغيل <strong>نفس صورة التطبيق</strong> في الحالتين «قبل» و«بعد» — لا يتغيّر سوى الإعداد، مما يضمن مقارنة عادلة.
+</p>
+
+<h2>8.2 تصميم تجربة القياس (قبل / بعد)</h2>
+<p>
+باستخدام أداة الضغط نفسها (JMeter)، تم توليد حِمل قراءة على كتالوج كبير (<strong>5000 منتج</strong> لجعل القراءة «مكلفة» فعلاً) مرتين متطابقتين:
+</p>
+<ul>
+  <li><strong>قبل (Cache OFF):</strong> <code>spring.cache.type=none</code> — كل طلب يصل إلى قاعدة البيانات.</li>
+  <li><strong>بعد (Cache ON):</strong> <code>spring.cache.type=redis</code> — الطلبات المتكررة تُخدَم من Redis.</li>
+</ul>
+<p>
+يتم تشغيل التجربة بأمر واحد: <code>./loadtest/bench.sh cache</code>.
+</p>
+
+<h2>8.3 النتائج وتحليل عنق الزجاجة</h2>
+<p>
+أظهرت المقارنة تحسّناً كبيراً عند تفعيل التخزين المؤقت — خاصةً في <strong>ذيل التوزيع (p95/p99)</strong> وفي عدد الطلبات في الثانية، مع اختفاء الأخطاء الناتجة عن إشباع النظام. الأرقام الدقيقة تظهر في الشكلين أدناه.
+</p>
+
+<div class="screenshots-section">
+<h3>أولاً: النتيجة من الطرفية (Terminal) &mdash; جدول قبل/بعد</h3>
+<div class="screenshot">
+  <img src="images/6-9-10-terminal.png" alt="نتيجة القياس من الطرفية — قبل وبعد التخزين المؤقت">
+  <div class="caption">شكل 15: مخرجات <code>bench.sh cache</code> — مقارنة زمن الاستجابة (p95/p99) وعدد الطلبات/ثانية ونسبة الأخطاء، بدون تخزين مقابل مع التخزين</div>
+</div>
+
+<h3>ثانياً: تقرير JMeter &mdash; قبل التخزين المؤقت (Cache OFF)</h3>
+<div class="screenshot">
+  <img src="images/6-9-10-jmeter-before.png" alt="تقرير JMeter قبل التخزين المؤقت">
+  <div class="caption">شكل 16: لوحة JMeter <strong>بدون</strong> تخزين مؤقت — أزمنة استجابة مرتفعة في الذيل (p95/p99) وعدد طلبات/ثانية منخفض</div>
+</div>
+
+<h3>ثالثاً: تقرير JMeter &mdash; بعد التخزين المؤقت (Cache ON)</h3>
+<div class="screenshot">
+  <img src="images/6-9-10-jmeter-dashboard-after.png" alt="تقرير JMeter بعد التخزين المؤقت">
+  <div class="caption">شكل 17: لوحة JMeter <strong>مع</strong> التخزين المؤقت — انخفاض كبير في p95/p99 وارتفاع واضح في عدد الطلبات/ثانية</div>
+</div>
+</div>
+
+<p>
+<strong>تحليل عنق الزجاجة (المتطلب 10):</strong> العائق الحقيقي هو <strong>مجمع اتصالات قاعدة البيانات (HikariCP، الحد الأقصى = 10)</strong>. تحت الحِمل العالي، تتنافس القراءات غير المخزّنة على هذه الاتصالات العشرة فتتراكم الطلبات وتنفجر أزمنة الاستجابة في الذيل (p99). عند تفعيل Redis، تُخدَم القراءات المتكررة من الذاكرة وتتحرّر اتصالات قاعدة البيانات، فينخفض p99 بشكل حادّ ويرتفع عدد الطلبات في الثانية. هذا بالضبط هو تحديد عنق الزجاجة وإثبات أثر الحل عليه.
+</p>
+
+<!-- ============================================================ -->
+<!--             9. ACID TRANSACTIONS (Req 8)                      -->
+<!-- ============================================================ -->
+<h1>9. المعاملات الذرّية (ACID Transactions) &mdash; الذرّية في إنشاء الطلب</h1>
+
+<p>
+إنشاء الطلب عمليةٌ <strong>مركّبة</strong>: خصم المخزون لعدّة منتجات، ثم إنشاء الطلب، ثم إنشاء عناصره. يجب أن تتمّ هذه الخطوات <strong>بالكامل أو لا تتمّ إطلاقاً</strong> — وهذه هي خاصية <strong>الذرّية (Atomicity)</strong> من خصائص قواعد بيانات ACID. تتحقق هذه الخاصية عبر التعليق التوضيحي <code>@Transactional</code> الذي يجعل كل ما بداخل الدالة معاملةً واحدة.
+</p>
+
+<pre dir="ltr">@Transactional                       // كل ما بالداخل معاملة واحدة — ذرّية
+public Order placeOrder(UUID userId, PlaceOrderRequest request) {
+    User user = resolveUser(userId);
+    List&lt;OrderItem&gt; items = new ArrayList&lt;&gt;();
+
+    for (var itemReq : request.getItems()) {
+        // خصم المخزون مع القفل المتفائل — قد يرمي استثناءً إن نفد المخزون
+        Product product = optimisticStrategy.purchase(
+                itemReq.getProductId(), itemReq.getQuantity());
+        items.add(/* ... عنصر الطلب ... */);
+    }
+
+    Order order = orderRepository.save(/* ... الطلب ... */);
+    order.getItems().addAll(items);
+    orderRepository.save(order);
+
+    eventPublisher.publishEvent(new OrderPlacedEvent(this, order)); // فوترة غير متزامنة
+    return order;
+}                                    // أي استثناء بالأعلى ⇐ تراجع كامل (Rollback)</pre>
+
+<p>
+<strong>مثال على الأهمية:</strong> لو طلب العميل ثلاثة منتجات ونفد مخزون الثالث، فبدون المعاملة كان سيُخصم مخزون أوّل منتجين ثم تفشل العملية — تاركةً بيانات غير متّسقة (مخزون نقص دون طلب مقابل). مع <code>@Transactional</code> يُلغى كل شيء تلقائياً: لا يُنشأ طلب، ولا يُخصم أيّ مخزون.
+</p>
+
+<p>
+هذه الذرّية — مجتمعةً مع آليات القفل (المتطلب 7، الموضّحة في القسم 2) — هي ما يضمن النتيجة التي رأيناها في <strong>القسم 7</strong>: كل طلب ناجح متّسقٌ تماماً، دون بيع زائد أو فقدان بيانات تحت التزامن العالي.
+</p>
+
+<!-- ============================================================ -->
+<!--                     10. SUMMARY                               -->
+<!-- ============================================================ -->
+<h1>10. ملخص الملفات والتقنيات</h1>
+
+<table>
+  <tr><th>المتطلب</th><th>التقنية / النمط</th><th>الملفات الرئيسية</th></tr>
+  <tr>
+    <td>1. حماية البيانات من التضارب</td>
+    <td>Optimistic Locking (@Version)<br>Pessimistic Locking (SELECT FOR UPDATE)<br>Strategy Pattern</td>
+    <td>Product.java<br>OptimisticPurchaseStrategy.java<br>PessimisticPurchaseStrategy.java<br>FlashSaleRepository.java</td>
+  </tr>
+  <tr>
+    <td>2. إدارة الموارد الحاسوبية</td>
+    <td>HikariCP Connection Pool<br>Lettuce Redis Pool<br>ThreadPoolTaskExecutor<br>CallerRunsPolicy</td>
+    <td>application.yml<br>AsyncConfig.java</td>
+  </tr>
+  <tr>
+    <td>3. المعالجة غير المتزامنة</td>
+    <td>@Async + @EventListener<br>Spring ApplicationEvent<br>Observer Pattern</td>
+    <td>OrderPlacedEvent.java<br>OrderEventListener.java<br>InvoiceService.java<br>EmailService.java</td>
+  </tr>
+  <tr>
+    <td>4. معالجة البيانات على دفعات</td>
+    <td>@Scheduled (cron)<br>Pageable Chunk Processing<br>Idempotent execution</td>
+    <td>DailySalesJob.java<br>DailySalesReportService.java<br>TokenCleanupScheduler.java</td>
+  </tr>
+  <tr>
+    <td>5. توزيع الأحمال</td>
+    <td>Nginx Round-Robin<br>Docker Compose scaling<br>AOP Request Logging<br>Prometheus + Grafana</td>
+    <td>docker-compose.yml<br>nginx/nginx.conf<br>RequestLoggingAspect.java<br>monitoring/*</td>
+  </tr>
+  <tr>
+    <td>اختبار الضغط (Stress Testing)</td>
+    <td>Apache JMeter (Docker)<br>100 مستخدم متزامن<br>التحقق من سلامة البيانات</td>
+    <td>loadtest/bench.sh<br>loadtest/shopflow-writeonly.jmx</td>
+  </tr>
+  <tr>
+    <td>6 + 10. التخزين المؤقت والقياس المرجعي</td>
+    <td>Redis Cache (@Cacheable / @CacheEvict)<br>قياس قبل/بعد<br>تحليل عنق الزجاجة (HikariCP)</td>
+    <td>CacheConfig.java<br>ProductService.java<br>loadtest/bench.sh<br>loadtest/shopflow-readonly.jmx</td>
+  </tr>
+  <tr>
+    <td>7. القفل المتفائل والمتشائم</td>
+    <td>Optimistic Locking (@Version)<br>Pessimistic Locking (SELECT FOR UPDATE)<br>(مشروح في القسم 2)</td>
+    <td>Product.java<br>OptimisticPurchaseStrategy.java<br>PessimisticPurchaseStrategy.java</td>
+  </tr>
+  <tr>
+    <td>8. المعاملات الذرّية (ACID)</td>
+    <td>@Transactional<br>الذرّية (Atomicity) والتراجع التلقائي (Rollback)</td>
+    <td>OrderService.java</td>
+  </tr>
+</table>
+
+</body>
+</html>

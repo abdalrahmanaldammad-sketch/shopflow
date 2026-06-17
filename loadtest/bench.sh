@@ -5,6 +5,7 @@
 #   ./loadtest/bench.sh build       Build the app image (run once, or after code changes)
 #   ./loadtest/bench.sh integrity   Req 9  — small catalog, high contention → proves NO DATA LOSS
 #   ./loadtest/bench.sh cache       Req 6/10 — big catalog, read-heavy → BEFORE/AFTER caching
+#   ./loadtest/bench.sh report      Build JMeter HTML dashboards from the last run's .jtl files
 #   ./loadtest/bench.sh down        Stop everything and wipe volumes
 #
 # Each user sends a FIXED number of requests, then the test stops (total = users × LOOPS).
@@ -126,10 +127,28 @@ cmd_cache() {
 
 cmd_down() { banner "TEARDOWN"; $DC down -v; }
 
+# Build JMeter HTML dashboards from the .jtl files produced by previous runs.
+# Done separately (not during the load test) so it stays light and never crashes the run.
+cmd_report() {
+  banner "GENERATE HTML REPORTS (from existing .jtl files)"
+  local found=0
+  for r in integrity big_before big_after; do
+    if [ -f "loadtest/results/$r.jtl" ]; then
+      found=1
+      rm -rf "loadtest/results/$r"
+      echo ">> $r.jtl → loadtest/results/$r/index.html"
+      $DC run --rm jmeter -g "/test/results/$r.jtl" -o "/test/results/$r" 2>&1 | grep -iE 'error|index.html' | tail -2 || true
+    fi
+  done
+  [ "$found" = 0 ] && { echo "  No .jtl files yet — run 'integrity' or 'cache' first."; return; }
+  echo; echo "  Open the index.html files above in a browser for the graphs."
+}
+
 case "${1:-}" in
   build)     cmd_build ;;
   integrity) cmd_integrity ;;
   cache)     cmd_cache ;;
+  report)    cmd_report ;;
   down)      cmd_down ;;
-  *) echo "usage: $0 {build|integrity|cache|down}"; exit 1 ;;
+  *) echo "usage: $0 {build|integrity|cache|report|down}"; exit 1 ;;
 esac

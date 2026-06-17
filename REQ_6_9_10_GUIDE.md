@@ -12,6 +12,7 @@
 ./loadtest/bench.sh build       # once (and after any Java change)
 ./loadtest/bench.sh integrity   # Req 9    — proves no data loss
 ./loadtest/bench.sh cache       # Req 6/10 — caching before vs after
+./loadtest/bench.sh report      # build JMeter HTML dashboards (graphs) from the last run
 ./loadtest/bench.sh down        # stop + clean up
 ```
 
