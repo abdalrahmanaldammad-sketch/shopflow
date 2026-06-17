@@ -45,6 +45,11 @@
           </collectionProp>
         </HeaderManager>
         <hashTree/>
+        <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Think Time (200-500ms)" enabled="true">
+          <stringProp name="ConstantTimer.delay">200</stringProp>
+          <stringProp name="RandomTimer.range">300.0</stringProp>
+        </UniformRandomTimer>
+        <hashTree/>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /api/products (hot read path)" enabled="true">
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
             <collectionProp name="Arguments.arguments"/>
@@ -57,8 +62,8 @@
         <hashTree>
           <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract a productId" enabled="true">
             <stringProp name="JSONPostProcessor.referenceNames">productId</stringProp>
-            <stringProp name="JSONPostProcessor.jsonPathExprs">$.data[0].id</stringProp>
-            <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.data[*].id</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">0</stringProp>
             <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND</stringProp>
           </JSONPostProcessor>
           <hashTree/>

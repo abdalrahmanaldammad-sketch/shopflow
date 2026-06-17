@@ -1,6 +1,7 @@
 
 
 
+
 services:
 
   # ─────────────────────────────────────────────
@@ -91,7 +92,9 @@ services:
     container_name: shopflow-nginx
     restart: unless-stopped
     ports:
-      - "80:80"
+      # Host port 80 is often taken by a system web server; map to 8080 on the host instead.
+      # JMeter is unaffected — it reaches nginx over the internal network as nginx:80.
+      - "8080:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
@@ -150,7 +153,7 @@ services:
   # Output lands in ./loadtest/results/ on the host.
   # ─────────────────────────────────────────────
   jmeter:
-    image: justb2b/jmeter:latest
+    image: alpine/jmeter:latest
     container_name: shopflow-jmeter
     profiles: ["tools"]
     volumes:

@@ -10,6 +10,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,9 +25,12 @@ public class ProductService {
     @Cacheable(value = CacheConfig.PRODUCTS_CACHE, key = "'all'")
     @Transactional(readOnly = true)
     public List<ProductResponse> findAll() {
+        // NOTE: must be a mutable ArrayList, not Stream.toList() (immutable). The Redis JSON
+        // serializer writes the concrete list type and cannot reconstruct ImmutableCollections
+        // on cache read-back — that would throw on every cache hit.
         return productRepository.findAll().stream()
                 .map(ProductResponse::from)
-                .toList();
+                .collect(java.util.stream.Collectors.toCollection(ArrayList::new));
     }
 
     @Cacheable(value = CacheConfig.PRODUCTS_CACHE, key = "#id")
