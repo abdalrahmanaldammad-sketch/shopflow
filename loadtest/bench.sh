@@ -8,7 +8,9 @@
 #   ./loadtest/bench.sh down        Stop everything and wipe volumes
 #
 # Tunables (env vars): DURATION (measure secs, default 120), WARMUP (default 60),
+#                      READ_USERS (cache test, default 20), WRITE_USERS (integrity test, default 100),
 #                      SEED_INTEGRITY (default 20), SEED_CACHE (default 5000).
+# Weak machine? Lower the load, e.g.:  READ_USERS=10 DURATION=60 ./loadtest/bench.sh cache
 #
 set -eu
 
@@ -18,6 +20,9 @@ DURATION="${DURATION:-120}"
 WARMUP="${WARMUP:-60}"
 SEED_INTEGRITY="${SEED_INTEGRITY:-20}"
 SEED_CACHE="${SEED_CACHE:-5000}"
+WRITE_USERS="${WRITE_USERS:-100}"   # concurrent users for the integrity (write) test
+READ_USERS="${READ_USERS:-20}"      # concurrent users for the cache (read) test — lower = lighter on your machine
+THREADS="$WRITE_USERS"              # current scenario's user count (set per scenario below)
 STOCK=100000                        # must match SEED_STOCK_PER_PRODUCT in LoadTestDataInitializer
 URL="http://localhost:8080/api/products"
 
@@ -46,11 +51,11 @@ wait_ready() {
 # jmeter <plan> <duration> [out-name]   (no out-name = throwaway warm-up)
 jmeter() {
   if [ "${3:-}" = "" ]; then
-    $DC run --rm jmeter -n -t "/test/$1" -Jhost=nginx -Jport=80 -Jduration="$2" 2>&1 | grep -E '^summary =' | tail -1
+    $DC run --rm jmeter -n -t "/test/$1" -Jhost=nginx -Jport=80 -Jthreads="$THREADS" -Jduration="$2" 2>&1 | grep -E '^summary =' | tail -1
   else
-    rm -rf "loadtest/results/$3" "loadtest/results/$3.jtl"
-    $DC run --rm jmeter -n -t "/test/$1" -Jhost=nginx -Jport=80 -Jduration="$2" \
-       -l "/test/results/$3.jtl" -e -o "/test/results/$3" 2>&1 | grep -E '^summary =' | tail -1
+    rm -f "loadtest/results/$3.jtl"
+    $DC run --rm jmeter -n -t "/test/$1" -Jhost=nginx -Jport=80 -Jthreads="$THREADS" -Jduration="$2" \
+       -l "/test/results/$3.jtl" 2>&1 | grep -E '^summary =' | tail -1
   fi
 }
 
@@ -79,7 +84,8 @@ cmd_build() { banner "BUILD"; ./mvnw -q clean compile jib:dockerBuild && echo ">
 
 cmd_integrity() {
   export LOADTEST_SEED_PRODUCTS="$SEED_INTEGRITY"
-  banner "DATA-INTEGRITY (Req 9) — $SEED_INTEGRITY products · 100 users · 50/50 read/write · ${DURATION}s"
+  THREADS="$WRITE_USERS"
+  banner "DATA-INTEGRITY (Req 9) — $SEED_INTEGRITY products · $WRITE_USERS users · writes only · ${DURATION}s"
   reset
   up "$BASE"
   wait_ready "$SEED_INTEGRITY"
@@ -87,12 +93,13 @@ cmd_integrity() {
   jmeter shopflow-writeonly.jmx "$DURATION" integrity
   banner "RESULT — Req 9 data integrity"
   check_integrity
-  echo; echo "  HTML report: loadtest/results/integrity/index.html"
+  echo; echo "  Raw results: loadtest/results/integrity.jtl"
 }
 
 cmd_cache() {
   export LOADTEST_SEED_PRODUCTS="$SEED_CACHE"
-  banner "CACHE BENCHMARK (Req 6/10) — $SEED_CACHE products · read-heavy · warm-up ${WARMUP}s · measure ${DURATION}s"
+  THREADS="$READ_USERS"
+  banner "CACHE BENCHMARK (Req 6/10) — $SEED_CACHE products · $READ_USERS users · reads only · warm-up ${WARMUP}s · measure ${DURATION}s"
   reset
   echo "── BEFORE: cache OFF ──────────────────────────────────────"
   up "$NOCACHE"
@@ -106,7 +113,7 @@ cmd_cache() {
   echo ">> measure…";  jmeter shopflow-readonly.jmx "$DURATION" big_after
   banner "RESULT — Req 6/10 caching before vs after"
   python3 loadtest/analyze.py big_before big_after
-  echo "  HTML reports: loadtest/results/big_before/index.html  vs  big_after/index.html"
+  echo "  Raw results: loadtest/results/big_before.jtl  vs  big_after.jtl"
 }
 
 cmd_down() { banner "TEARDOWN"; $DC down -v; }

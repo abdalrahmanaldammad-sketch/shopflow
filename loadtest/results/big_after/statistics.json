@@ -1,0 +1,34 @@
+{
+  "GET /api/products (hot read path)" : {
+    "transaction" : "GET /api/products (hot read path)",
+    "sampleCount" : 4388,
+    "errorCount" : 0,
+    "errorPct" : 0.0,
+    "meanResTime" : 173.35938924339086,
+    "medianResTime" : 136.0,
+    "minResTime" : 32.0,
+    "maxResTime" : 1902.0,
+    "pct1ResTime" : 316.0,
+    "pct2ResTime" : 399.0,
+    "pct3ResTime" : 652.5399999999954,
+    "throughput" : 36.71167779395278,
+    "receivedKBytesPerSec" : 65895.35986482544,
+    "sentKBytesPerSec" : 5.52109216823118
+  },
+  "Total" : {
+    "transaction" : "Total",
+    "sampleCount" : 4388,
+    "errorCount" : 0,
+    "errorPct" : 0.0,
+    "meanResTime" : 173.35938924339086,
+    "medianResTime" : 136.0,
+    "minResTime" : 32.0,
+    "maxResTime" : 1902.0,
+    "pct1ResTime" : 316.0,
+    "pct2ResTime" : 399.0,
+    "pct3ResTime" : 652.5399999999954,
+    "throughput" : 36.71167779395278,
+    "receivedKBytesPerSec" : 65895.35986482544,
+    "sentKBytesPerSec" : 5.52109216823118
+  }
+}
