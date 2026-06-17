@@ -28,13 +28,13 @@ Each command sets everything up, runs the test, and prints the result. Nothing e
 |---|---|
 | `shared/config/CacheConfig.java` | Redis cache, 60s TTL. Off when `spring.cache.type=none`. |
 | `product/service/ProductService.java` | `@Cacheable` on reads, `@CacheEvict` on writes. |
-| `loadtest/shopflow.jmx` | Stress plan (50/50 read/write) — Req 9. |
-| `loadtest/shopflow-readheavy.jmx` | Read-heavy plan — Req 6/10. |
+| `loadtest/shopflow-writeonly.jmx` | Write-only plan (POST orders) — Req 9. |
+| `loadtest/shopflow-readonly.jmx` | Read-only plan (GET only) — Req 6/10. |
 | `loadtest/bench.sh` | One script that runs both scenarios. |
 
-The two scenarios need opposite setups, so they are separate:
-- **integrity** = small catalog (20 products) → high contention → shows the lock working.
-- **cache** = big catalog (5000 products) → expensive reads → shows caching helping.
+The two scenarios are opposite on purpose:
+- **integrity** = writes only, small catalog (20 products) → high contention → shows the lock working.
+- **cache** = reads only, big catalog (5000 products) → expensive reads → shows caching helping.
 
 ---
 
@@ -49,7 +49,7 @@ stock sold = units sold = confirmed orders   ✅
 
 Every unit removed maps to one order item and one confirmed order. No overselling.
 
-### Req 6 / 10 — Caching (5000 products, read-heavy)
+### Req 6 / 10 — Caching (5000 products, read-only)
 
 | GET /api/products | cache OFF | cache ON |
 |---|---|---|

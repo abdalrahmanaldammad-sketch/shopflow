@@ -408,8 +408,8 @@ Stress testing (**Req 9**) and before/after benchmarking (**Req 10**) are driven
 
 **Run a requirement (each is fully self-contained and prints its result):**
 ```bash
-./loadtest/bench.sh integrity  # Req 9    — 20-product catalog, 100 users, high contention → proves NO DATA LOSS
-./loadtest/bench.sh cache      # Req 6/10 — 5000-product catalog, read-heavy → caching BEFORE vs AFTER
+./loadtest/bench.sh integrity  # Req 9    — writes only, 20-product catalog, high contention → proves NO DATA LOSS
+./loadtest/bench.sh cache      # Req 6/10 — reads only, 5000-product catalog → caching BEFORE vs AFTER
 ```
 
 **Tear down:**

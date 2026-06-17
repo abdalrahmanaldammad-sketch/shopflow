@@ -83,8 +83,8 @@ cmd_integrity() {
   reset
   up "$BASE"
   wait_ready "$SEED_INTEGRITY"
-  echo ">> stress run (shopflow.jmx)…"
-  jmeter shopflow.jmx "$DURATION" integrity
+  echo ">> stress run (writes only)…"
+  jmeter shopflow-writeonly.jmx "$DURATION" integrity
   banner "RESULT — Req 9 data integrity"
   check_integrity
   echo; echo "  HTML report: loadtest/results/integrity/index.html"
@@ -97,13 +97,13 @@ cmd_cache() {
   echo "── BEFORE: cache OFF ──────────────────────────────────────"
   up "$NOCACHE"
   wait_ready "$SEED_CACHE"
-  echo ">> warm-up…";  jmeter shopflow-readheavy.jmx "$WARMUP"
-  echo ">> measure…";  jmeter shopflow-readheavy.jmx "$DURATION" big_before
+  echo ">> warm-up…";  jmeter shopflow-readonly.jmx "$WARMUP"
+  echo ">> measure…";  jmeter shopflow-readonly.jmx "$DURATION" big_before
   echo "── AFTER: cache ON (same DB, just flip the flag) ──────────"
   up "$BASE"
   wait_ready "$SEED_CACHE"
-  echo ">> warm-up…";  jmeter shopflow-readheavy.jmx "$WARMUP"
-  echo ">> measure…";  jmeter shopflow-readheavy.jmx "$DURATION" big_after
+  echo ">> warm-up…";  jmeter shopflow-readonly.jmx "$WARMUP"
+  echo ">> measure…";  jmeter shopflow-readonly.jmx "$DURATION" big_after
   banner "RESULT — Req 6/10 caching before vs after"
   python3 loadtest/analyze.py big_before big_after
   echo "  HTML reports: loadtest/results/big_before/index.html  vs  big_after/index.html"
