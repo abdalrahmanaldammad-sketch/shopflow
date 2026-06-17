@@ -133,7 +133,7 @@ $(document).ready(function() {
         widgets: ['zebra']
     });
 
-    var data = {"OkPercent": 92.7703818870858, "KoPercent": 7.2296181129141965};
+    var data = {"OkPercent": 100.0, "KoPercent": 0.0};
     var dataset = [
         {
             "label" : "FAIL",
@@ -173,7 +173,7 @@ $(document).ready(function() {
     });
 
     // Creates APDEX table
-    createTable($("#apdexTable"), {"supportsControllersDiscrimination": true, "overall": {"data": [0.9277038188708581, 500, 1500, "Total"], "isController": false}, "titles": ["Apdex", "T (Toleration threshold)", "F (Frustration threshold)", "Label"], "items": [{"data": [0.8551683862176368, 500, 1500, "POST /api/orders (write path: lock + ACID)"], "isController": false}, {"data": [1.0, 500, 1500, "GET /api/products (hot read path)"], "isController": false}]}, function(index, item){
+    createTable($("#apdexTable"), {"supportsControllersDiscrimination": true, "overall": {"data": [0.10036413290851161, 500, 1500, "Total"], "isController": false}, "titles": ["Apdex", "T (Toleration threshold)", "F (Frustration threshold)", "Label"], "items": [{"data": [0.13899253731343283, 500, 1500, "POST /api/orders (write path: lock + ACID)"], "isController": false}, {"data": [0.06355555555555556, 500, 1500, "GET /api/products (hot read path)"], "isController": false}]}, function(index, item){
         switch(index){
             case 0:
                 item = item.toFixed(3);
@@ -187,7 +187,7 @@ $(document).ready(function() {
     }, [[0, 0]], 3);
 
     // Create statistics table
-    createTable($("#statisticsTable"), {"supportsControllersDiscrimination": true, "overall": {"data": ["Total", 30873, 2232, 7.2296181129141965, 20.614582321122185, 1, 259, 13.0, 49.0, 67.0, 112.0, 258.59382852548, 383.26357980387473, 50.99164920783495], "isController": false}, "titles": ["Label", "#Samples", "FAIL", "Error %", "Average", "Min", "Max", "Median", "90th pct", "95th pct", "99th pct", "Transactions/s", "Received", "Sent"], "items": [{"data": ["POST /api/orders (write path: lock + ACID)", 15411, 2232, 14.483161378236325, 28.35760171306206, 4, 259, 19.0, 63.0, 83.0, 131.0, 129.45307315598043, 91.24059359171167, 31.60475418847178], "isController": false}, {"data": ["GET /api/products (hot read path)", 15462, 0, 0.0, 12.897102574052521, 1, 168, 7.0, 31.0, 43.0, 74.0, 129.51484286001474, 292.29338370562635, 19.477818164494405], "isController": false}]}, function(index, item){
+    createTable($("#statisticsTable"), {"supportsControllersDiscrimination": true, "overall": {"data": ["Total", 2197, 0, 0.0, 4840.908056440599, 76, 27390, 4045.0, 9760.4, 11820.199999999997, 16252.819999999996, 17.924012629208715, 8240.626137714873, 3.5155230199554555], "isController": false}, "titles": ["Label", "#Samples", "FAIL", "Error %", "Average", "Min", "Max", "Median", "90th pct", "95th pct", "99th pct", "Transactions/s", "Received", "Sent"], "items": [{"data": ["POST /api/orders (write path: lock + ACID)", 1072, 0, 0.0, 4179.501865671649, 76, 17958, 3448.5, 8768.300000000003, 10241.049999999997, 14310.329999999989, 8.945782881176303, 6.488937664812698, 2.1840290237246833], "isController": false}, {"data": ["GET /api/products (hot read path)", 1125, 0, 0.0, 5471.1546666666645, 256, 27390, 4479.0, 10828.4, 13115.000000000004, 17939.98, 9.181799632728016, 8237.508089866864, 1.3808565853907364], "isController": false}]}, function(index, item){
         switch(index){
             // Errors pct
             case 3:
@@ -217,7 +217,7 @@ $(document).ready(function() {
     }, [[0, 0]], 0, summaryTableHeader);
 
     // Create error table
-    createTable($("#errorsTable"), {"supportsControllersDiscrimination": false, "titles": ["Type of error", "Number of errors", "% in errors", "% in all samples"], "items": [{"data": ["500", 2232, 100.0, 7.2296181129141965], "isController": false}]}, function(index, item){
+    createTable($("#errorsTable"), {"supportsControllersDiscrimination": false, "titles": ["Type of error", "Number of errors", "% in errors", "% in all samples"], "items": []}, function(index, item){
         switch(index){
             case 2:
             case 3:
@@ -228,7 +228,7 @@ $(document).ready(function() {
     }, [[1, 1]]);
 
         // Create top5 errors by sampler
-    createTable($("#top5ErrorsBySamplerTable"), {"supportsControllersDiscrimination": false, "overall": {"data": ["Total", 30873, 2232, "500", 2232, "", "", "", "", "", "", "", ""], "isController": false}, "titles": ["Sample", "#Samples", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors"], "items": [{"data": ["POST /api/orders (write path: lock + ACID)", 15411, 2232, "500", 2232, "", "", "", "", "", "", "", ""], "isController": false}, {"data": [], "isController": false}]}, function(index, item){
+    createTable($("#top5ErrorsBySamplerTable"), {"supportsControllersDiscrimination": false, "overall": {"data": ["Total", 2197, 0, "", "", "", "", "", "", "", "", "", ""], "isController": false}, "titles": ["Sample", "#Samples", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors"], "items": [{"data": [], "isController": false}, {"data": [], "isController": false}]}, function(index, item){
         return item;
     }, [[0, 0]], 0);
 

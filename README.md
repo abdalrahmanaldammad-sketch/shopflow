@@ -13,6 +13,7 @@ A production-ready e-commerce backend built with Spring Boot, focused on **non-f
 - [Non-Functional Requirements](#non-functional-requirements)
 - [API Endpoints](#api-endpoints)
 - [Running the Application](#running-the-application)
+- [Load Testing & Benchmarks](#load-testing--benchmarks)
 - [Environment Variables](#environment-variables)
 
 ---
@@ -302,6 +303,20 @@ Client → Nginx (least_conn) → app instance :8080
 
 ---
 
+### 6. Distributed Caching — Redis
+
+The hot product-read path is cached in Redis so repeated reads under load are served from memory instead of hitting PostgreSQL on every request.
+
+- `@Cacheable` on `ProductService.findAll()` / `findById()` — caches `ProductResponse` **DTOs** (never JPA entities) in Redis with a 60s TTL.
+- `@CacheEvict(allEntries = true)` on every write (product create, stock decrement) — the catalog never serves stale stock.
+- The cache manager is **config-gated**: `spring.cache.type=redis` (default) uses Redis; `spring.cache.type=none` falls back to a no-op cache. The **same image** therefore runs both the "before" and "after" benchmark — only config differs.
+
+Files: `shared/config/CacheConfig.java`, `product/service/ProductService.java`, `product/strategy/OptimisticPurchaseStrategy.java`
+
+> Caching only pays off when the cached read is **expensive**. Against a large catalog (5,000 products), enabling Redis cut read **p99 by ~83%** and raised throughput **5×** under load. Measured numbers and the full story are in [REQ_6_9_10_GUIDE.md](REQ_6_9_10_GUIDE.md).
+
+---
+
 ## API Endpoints
 
 ### Auth (public)
@@ -341,29 +356,30 @@ Client → Nginx (least_conn) → app instance :8080
 
 **Step 1:** Build the Docker image using Jib (no Dockerfile needed):
 ```bash
-./mvnw jib:dockerBuild
+./mvnw clean compile jib:dockerBuild
 ```
+> `compile` is required — `jib:dockerBuild` packages `target/classes` but does not compile, and `clean` just removed them.
 
 **Step 2:** Start all services (PostgreSQL, Redis, App) in the correct order:
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
-Docker Compose uses `depends_on` with `condition: service_healthy` — the app will not start until both PostgreSQL and Redis pass their health checks.
+Docker Compose uses `depends_on` with `condition: service_healthy` — the app will not start until both PostgreSQL and Redis pass their health checks. Nginx is published on host port **8080**, Grafana on **3000**.
 
 **Step 3:** Check logs:
 ```bash
-docker-compose logs -f app
+docker compose logs -f app
 ```
 
 **Step 4:** Stop everything:
 ```bash
-docker-compose down
+docker compose down
 ```
 
 To also delete stored data (volumes):
 ```bash
-docker-compose down -v
+docker compose down -v
 ```
 
 ---
@@ -376,6 +392,38 @@ docker-compose down -v
 ```bash
 ./mvnw spring-boot:run
 ```
+
+---
+
+## Load Testing & Benchmarks
+
+Stress testing (**Req 9**) and before/after benchmarking (**Req 10**) are driven by JMeter (official Docker image) against the app behind nginx. Everything runs through **one script** — no JMeter install, no manual compose juggling.
+
+> Auth is disabled **only** under the `loadtest` Spring profile (activated by the override compose files the script uses), so the load test measures the engineering, not login. A plain `docker compose up` keeps full auth on.
+
+**One-time — build the image:**
+```bash
+./loadtest/bench.sh build      # re-run only after Java code changes
+```
+
+**Run a requirement (each is fully self-contained and prints its result):**
+```bash
+./loadtest/bench.sh integrity  # Req 9    — 20-product catalog, 100 users, high contention → proves NO DATA LOSS
+./loadtest/bench.sh cache      # Req 6/10 — 5000-product catalog, read-heavy → caching BEFORE vs AFTER
+```
+
+**Tear down:**
+```bash
+./loadtest/bench.sh down
+```
+
+Each command resets the stack, seeds the right catalog, runs the test, and prints the answer:
+- **`integrity`** → a PASS/FAIL invariant check (`stock sold == units sold == confirmed orders`).
+- **`cache`** → a before/after latency table (cache off vs cache on).
+
+HTML reports land in `loadtest/results/`. Tunables: `DURATION` (measure seconds, default 120), `WARMUP` (default 60), `SEED_INTEGRITY` (default 20), `SEED_CACHE` (default 5000) — e.g. `DURATION=60 ./loadtest/bench.sh integrity`.
+
+📄 Full walkthrough, methodology, and measured numbers: **[REQ_6_9_10_GUIDE.md](REQ_6_9_10_GUIDE.md)**.
 
 ---
 
@@ -392,6 +440,9 @@ All variables have safe defaults for local development. Override them in product
 | `REDIS_HOST` | `localhost` | Redis hostname |
 | `REDIS_PORT` | `6379` | Redis port |
 | `REDIS_PASSWORD` | _(empty)_ | Redis password |
+| `SPRING_PROFILES_ACTIVE` | _(empty)_ | Set to `loadtest` to seed demo data + open order endpoints (load testing only) |
+| `SPRING_CACHE_TYPE` | `redis` | `redis` = caching on; `none` = caching off (for the "before" benchmark) |
+| `LOADTEST_SEED_PRODUCTS` | `5000` | Catalog size seeded under the `loadtest` profile |
 | `JWT_SECRET` | _(dev default)_ | Must be 64+ characters in production |
 | `MAIL_HOST` | `sandbox.smtp.mailtrap.io` | SMTP server |
 | `MAIL_PORT` | `2525` | SMTP port |

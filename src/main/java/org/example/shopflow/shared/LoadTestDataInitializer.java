@@ -33,8 +33,13 @@ public class LoadTestDataInitializer implements CommandLineRunner {
     // Must match OrderService.DEMO_USER_EMAIL — orders without a principal run as this user.
     public static final String DEMO_USER_EMAIL = "loadtest@shopflow.dev";
 
-    // Deterministic catalog so the JMeter "no data loss" check has known starting stock.
-    private static final int SEED_PRODUCT_COUNT = 10;
+    // Catalog size is configurable so ONE image serves both demo scenarios (see loadtest/bench.sh):
+    //   - integrity (Req 9): a SMALL catalog → high write contention → shows the lock holding.
+    //   - cache (Req 6/10):  a LARGE catalog → expensive reads → shows the caching benefit.
+    // Set via LOADTEST_SEED_PRODUCTS (env) / loadtest.seed.products (property). Default 5,000.
+    @org.springframework.beans.factory.annotation.Value("${loadtest.seed.products:5000}")
+    private int seedProductCount;
+
     private static final int SEED_STOCK_PER_PRODUCT = 100_000;
 
     private final UserRepository userRepository;
@@ -75,16 +80,17 @@ public class LoadTestDataInitializer implements CommandLineRunner {
             log.info("[loadtest] {} products already present — skipping product seed", existing);
             return;
         }
-        for (int i = 1; i <= SEED_PRODUCT_COUNT; i++) {
-            Product product = Product.builder()
+        java.util.List<Product> batch = new java.util.ArrayList<>(seedProductCount);
+        for (int i = 1; i <= seedProductCount; i++) {
+            batch.add(Product.builder()
                     .name("Load Test Product " + i)
                     .description("Seeded product for stress testing and benchmarking")
                     .price(BigDecimal.valueOf(9.99 + i))
                     .stockQuantity(SEED_STOCK_PER_PRODUCT)
-                    .build();
-            productRepository.save(product);
+                    .build());
         }
+        productRepository.saveAll(batch);
         log.info("[loadtest] Seeded {} products with {} stock each",
-                SEED_PRODUCT_COUNT, SEED_STOCK_PER_PRODUCT);
+                seedProductCount, SEED_STOCK_PER_PRODUCT);
     }
 }

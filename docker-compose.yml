@@ -62,8 +62,10 @@ services:
     environment:
       # Req 9/10 — set SPRING_PROFILES_ACTIVE=loadtest to seed demo data + open order endpoints.
       # Set SPRING_CACHE_TYPE=none for the "before" (no-cache) benchmark run.
+      # LOADTEST_SEED_PRODUCTS sizes the seeded catalog (small=contention demo, large=caching demo).
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-}
       SPRING_CACHE_TYPE: ${SPRING_CACHE_TYPE:-redis}
+      LOADTEST_SEED_PRODUCTS: ${LOADTEST_SEED_PRODUCTS:-5000}
       DB_HOST: postgres
       DB_PORT: 5432
       DB_USERNAME: ${DB_USERNAME:-postgres}

@@ -27,7 +27,9 @@ consistency (optimistic locking + ACID).
 ### Req 9 + 10: Stress test harness
 | File | What it does |
 |---|---|
-| `loadtest/shopflow.jmx` | JMeter plan: 100 users loop `GET /api/products` → `POST /api/orders`. Parameterized via `-Jhost/port/threads/duration`. |
+| `loadtest/shopflow.jmx` | Stress plan (Req 9): 100 users loop `GET /api/products` → `POST /api/orders` (~50/50 read/write). Parameterized via `-Jhost/port/threads/duration`. |
+| `loadtest/shopflow-readheavy.jmx` | Benchmark plan (Req 6/10): same flow but only ~10% of iterations place an order (Throughput Controller). Read-heavy is the realistic catalog pattern where caching pays off. |
+| `loadtest/analyze.py` | Prints per-endpoint percentiles from a run's `statistics.json` (`python3 loadtest/analyze.py before after`). |
 | `docker-compose.yml` (`jmeter` service) | JMeter as an on-demand container under the `tools` compose profile (doesn't start on normal `up`). |
 | `docker-compose.loadtest.yml` | Override that turns on the `loadtest` Spring profile (cache on). |
 | `docker-compose.nocache.yml` | Override that turns caching off, for the "before" run. |
@@ -35,7 +37,7 @@ consistency (optimistic locking + ACID).
 ### Auth disabled for the demo (so the benchmark measures engineering, not login)
 | File | What it does |
 |---|---|
-| `shared/LoadTestDataInitializer.java` | Under the `loadtest` profile, seeds a demo user + 10 products (100,000 stock each). |
+| `shared/LoadTestDataInitializer.java` | Under the `loadtest` profile, seeds a demo user + 5,000 products (100,000 stock each). The large catalog makes the uncached read genuinely expensive so caching has something to beat (see Part 3). |
 | `shared/config/SecurityConfig.java` | Under the `loadtest` profile, opens `POST /api/orders/**`. Default profile keeps auth on. |
 | `order/controller/OrderController.java`, `order/service/OrderService.java` | When there's no logged-in user, orders run as the seeded demo user. |
 
@@ -46,11 +48,28 @@ consistency (optimistic locking + ACID).
 
 ---
 
-## Part 2 — How to run it (step by step)
+## Part 2 — How to run it
 
 ### Prerequisites
 - Docker Desktop running.
 - Run all commands from the repo root.
+
+### The easy way — one script (recommended)
+
+`loadtest/bench.sh` wraps the entire flow (reset → seed → run → verify → print). Use this.
+
+```bash
+./loadtest/bench.sh build       # once, and after any Java change
+./loadtest/bench.sh integrity   # Req 9    — proves NO DATA LOSS (PASS/FAIL)
+./loadtest/bench.sh cache       # Req 6/10 — caching BEFORE vs AFTER (latency table)
+./loadtest/bench.sh down        # stop + wipe
+```
+
+`integrity` seeds a small catalog (20 products) for high contention; `cache` seeds a large one
+(5000) for expensive reads. Tunables: `DURATION` (default 120s), `WARMUP` (default 60s),
+`SEED_INTEGRITY` (20), `SEED_CACHE` (5000) — e.g. `DURATION=60 ./loadtest/bench.sh integrity`.
+
+The rest of this section is **what the script does under the hood**, if you want to run it by hand.
 
 ### Step 1 — Build the app image
 ```bash
@@ -72,22 +91,32 @@ curl -s http://localhost:8080/api/products | head -c 500
 > nginx is published on host port **8080** (port 80 is often already taken). Grafana = `:3000`.
 Expect JSON containing `"Load Test Product 1"`. If `data` is empty, the profile didn't activate.
 
-### Step 4 — Run the stress test (cache ON)
-Run as a **single line** (multi-line `\` continuations break in some shells):
+### Step 4 — Req 9 stress test (no data loss under 100 users)
+Use the 50/50 read/write plan. Run as a **single line** (multi-line `\` continuations break in some shells):
 ```bash
-docker compose run --rm jmeter -n -t /test/shopflow.jmx -Jhost=nginx -Jport=80 -Jduration=120 -l /test/results/after.jtl -e -o /test/results/after
+docker compose run --rm jmeter -n -t /test/shopflow.jmx -Jhost=nginx -Jport=80 -Jduration=120 -l /test/results/stress.jtl -e -o /test/results/stress
 ```
-Open the report at `loadtest/results/after/index.html`.
-> If JMeter complains the output is not empty, clear it first: `rm -rf loadtest/results/after*`.
+Then run the data-integrity check in Part 4. This is the Req 9 proof (no crash, no overselling).
+> If JMeter complains the output dir isn't empty, clear it first: `rm -rf loadtest/results/stress*`.
 
-### Step 5 — Run the "before" pass (cache OFF) for the comparison
+### Step 5 — Req 6/10 caching benchmark (before vs after)
+Use the **read-heavy** plan (`shopflow-readheavy.jmx`) — caching only pays off when reads dominate.
+Always do a throwaway **warm-up** run first so the JVM is JIT-compiled before you measure
+(otherwise warmup/thermal noise dwarfs the caching effect — see Part 3).
+
+**AFTER (cache ON)** — stack is already up from Step 2:
+```bash
+docker compose run --rm jmeter -n -t /test/shopflow-readheavy.jmx -Jhost=nginx -Jport=80 -Jduration=60   # warm-up, discard
+docker compose run --rm jmeter -n -t /test/shopflow-readheavy.jmx -Jhost=nginx -Jport=80 -Jduration=120 -l /test/results/big_after.jtl -e -o /test/results/big_after
+```
+
+**BEFORE (cache OFF)** — switch config (same image, only `spring.cache.type` differs), then warm-up + measure:
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.loadtest.yml -f docker-compose.nocache.yml up -d --scale app=2
+docker compose run --rm jmeter -n -t /test/shopflow-readheavy.jmx -Jhost=nginx -Jport=80 -Jduration=60   # warm-up, discard
+docker compose run --rm jmeter -n -t /test/shopflow-readheavy.jmx -Jhost=nginx -Jport=80 -Jduration=120 -l /test/results/big_before.jtl -e -o /test/results/big_before
 ```
-```bash
-docker compose run --rm jmeter -n -t /test/shopflow.jmx -Jhost=nginx -Jport=80 -Jduration=120 -l /test/results/before.jtl -e -o /test/results/before
-```
-Same image, only config differs — a fair before/after comparison.
+Compare: `python3 loadtest/analyze.py big_before big_after` (or open the `index.html` reports).
 
 ### Step 6 — Tear down
 ```bash
@@ -98,42 +127,55 @@ docker compose down            # add -v to also wipe the database
 
 ## Part 3 — Benchmark results (Req 10)
 
-Measured run: 100 concurrent users, 120s, via nginx over 2 app instances. ~257 req/s sustained,
-no crash. Source: `loadtest/results/{before,after}/index.html`.
+> These are real measured numbers, and getting them honestly took some iteration. The headline:
+> **caching helps a lot — but only once the read it caches is actually expensive.** The road to
+> that result is itself the bottleneck analysis Req 10 asks for.
 
-### GET /api/products — the cached read path (Req 6)
+### The result that matters: 5,000-product catalog, read-heavy load
+
+Setup: 100 concurrent users, read-heavy plan (~10 reads : 1 write), 120s, via nginx over 2 app
+instances, JVM warmed first. Same image both runs — only `spring.cache.type` differs.
+Source: `loadtest/results/big_{before,after}/index.html`.
+
+**GET /api/products — the cached read path**
 | Metric | Before (no cache) | After (Redis) | Improvement |
 |---|---|---|---|
-| median (ms) | 12 | 7 | **−42%** |
-| p95 (ms) | 101 | 43 | **−57%** |
-| p99 (ms) | 179 | 74 | **−59%** |
-| mean (ms) | 26.3 | 12.9 | **−51%** |
-| errors | 0 | 0 | — |
+| p95 | 74,159 ms | 11,984 ms | **−84%** |
+| p99 | 98,761 ms | 16,808 ms | **−83%** |
+| mean | 12,931 ms | 4,729 ms | **−63%** |
+| throughput | 1.0 req/s | 5.0 req/s | **5× more** |
+| total errors | 2.55% | **0%** | — |
 
-The win is in the **tail**: uncached, every read competes for the 10-connection Hikari pool, so
-p95/p99 balloon under load. With Redis, repeat reads skip Postgres entirely → p99 cut by ~59%.
+Redis cache hit rate during the cached run: **~77%**.
 
-### POST /api/orders — write path (NOT cached), same run
-| Metric | Before | After |
-|---|---|---|
-| median (ms) | 28 | 19 |
-| p95 (ms) | 189 | 83 |
-| p99 (ms) | 306 | 131 |
-| error % | 14.8 | 14.5 |
+**What this shows:** uncached, each request makes Postgres return 5,000 rows and Hibernate hydrate
+5,000 entities; under 100 concurrent users that work saturates the **shared HikariCP pool
+(`maximum-pool-size: 10`)** and the system collapses into 74–98 *second* stalls. With Redis, repeat
+reads skip Postgres entirely — tail latency drops ~83% and the service sustains 5× the throughput
+with zero errors. **The bottleneck is the connection pool feeding an expensive query; caching
+relieves it.**
 
-**Notable secondary effect:** the order path got faster too (p99 306→131 ms) *even though it
-isn't cached*. Reason — caching reads frees DB connections in the **shared HikariCP pool**, so the
-write path waits less. This pinpoints the real bottleneck.
+### Why the first attempt showed NO benefit (the honest part)
 
-**Bottleneck identified:** the shared Postgres connection pool (`maximum-pool-size: 10`). Under 100
-users, uncached reads saturate it and everything queues. **Fix (Req 6):** cache the read path in
-Redis → frees the pool → both reads *and* writes speed up.
+The catalog was originally **10 products**. Benchmarking that showed caching making things *worse*.
+Two reasons, both real and worth documenting:
 
-**Second bottleneck (write contention):** the ~14.5% order errors are **not data loss** — they are
-the optimistic lock (Req 7) *correctly rejecting* conflicting writes when 100 threads fight over
-only 10 product rows (~10 writers/row). See Part 4: every successful order is consistent. To lower
-this rejection rate, spread load over more products (a real catalog has thousands, not 10) or raise
-`MAX_RETRIES` in `OptimisticPurchaseStrategy`.
+1. **A 10-row read is already free.** Warm Postgres serves a 10-row table in ~1 ms (measured: GET
+   median ~9 ms cache-off). Redis can't beat that and *adds* a network round-trip + JSON
+   deserialization. **Caching only pays off when the cached work is expensive relative to fetching
+   it from cache** — hence the move to 5,000 rows above.
+2. **Single-laptop variance dwarfed the effect.** Cache-off GET median swung 9 → 104 ms run to run,
+   purely from JVM JIT-warmup depth and CPU thermal throttling. Lesson applied: always run a
+   throwaway warm-up before measuring, and compare warm-vs-warm.
+
+### Write-path note (`POST /api/orders`)
+
+Writes are deliberately **not cached** — they need strong consistency (optimistic lock + ACID,
+Req 7). Under the heavy 50/50 stress plan, a fraction of orders return errors; these are **not data
+loss** but the optimistic lock *correctly rejecting* conflicting writes (Part 4 proves every
+surviving order is consistent). `@CacheEvict(allEntries=true)` on each stock change keeps the
+catalog from ever serving stale stock — the trade-off is that a write-heavy workload evicts the
+cache often, which is the other reason caching shines under *read-heavy* load, not write-heavy.
 
 **AOP monitoring:** per-request latency is logged by `shared/config/RequestLoggingAspect.java`
 (an `@Around` advice over all controllers) — the AOP performance monitoring the brief asks to document.
@@ -145,24 +187,28 @@ this rejection rate, spread load over more products (a real catalog has thousand
 The headline result — under 100 concurrent users, no overselling (locking + ACID hold).
 
 ```bash
-docker exec -it shopflow-postgres psql -U postgres -d authdb
-```
-```sql
-SELECT sum(stock_quantity) AS stock_now FROM products;
+docker exec shopflow-postgres psql -U postgres -d authdb -c "
+SELECT 500000000 - sum(stock_quantity) AS stock_sold FROM products;
 SELECT count(*) AS confirmed_orders FROM orders WHERE status = 'CONFIRMED';
-SELECT sum(quantity) AS units_sold FROM order_items;
+SELECT sum(quantity) AS units_sold FROM order_items;"
 ```
 Invariant: **`(seeded stock) - stock_now == units_sold == confirmed_orders`** and no order is lost
-or duplicated. Seeded stock = 10 products × 100,000 = 1,000,000.
+or duplicated. Seeded stock = 5,000 products × 100,000 = 500,000,000.
 
-Measured (cumulative over the benchmark runs):
+Measured after the stress run:
 | Check | Value |
 |---|---|
-| stock sold (1,000,000 − stock_now) | 65,126 |
-| units_sold (sum of order_items) | 65,126 |
-| confirmed_orders | 65,126 |
+| stock sold (500,000,000 − stock_now) | 1,198 |
+| units_sold (sum of order_items) | 1,198 |
+| confirmed_orders | 1,198 |
+| order errors during run | **0%** |
 | **Invariant holds?** | **✅ exact — no overselling, no lost/duplicated units** |
 
-This is the key proof: even with ~14.5% of order attempts *rejected* under contention, every
-unit of stock removed maps to exactly one order item and one confirmed order. The lock turns a
-race condition into a clean rejection, never corrupt data.
+This is the key Req 9 proof: every unit of stock removed maps to exactly one order item and one
+confirmed order — under 100 concurrent users, with no loss or duplication.
+
+**Bonus finding (Req 10):** with the original 10-product catalog the same stress plan returned
+~15% order *errors*. Those were never data loss — they were the optimistic lock (Req 7) correctly
+rejecting conflicting writes when ~10 threads fought over each row. Spreading the same load across
+5,000 products dropped contention to near zero, so the error rate fell to **0%**. The "errors" were
+a property of the tiny catalog, not a defect — and the lock guaranteed correctness either way.
